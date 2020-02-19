@@ -4,3 +4,6 @@
 #
 #
 adapters_file: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta" 
+alignment_reference: ""
+
+
