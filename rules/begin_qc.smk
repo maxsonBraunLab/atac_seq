@@ -25,20 +25,31 @@
 #        """--- shifting reads---"""
 #    shell:
 #        """ """
+#rule index:
+#    input:
+#        deduplicated = "../samples/bamfiles/{sample}_rmChrM_dedup.bam",
+#    output:
+#        indexed = "",
+#    conda:
+#        "../envs/samtools_env.yaml"
+#    threads: 4 
+#    message:
+#        """--- indexing reads---"""
+#    shell:
+#        """sambamba index -t {threads} {input.deduplicated} {output.indexed}"""
 #
 #rule dedup:
 #    input:
 #        bamfile = "../samples/bamfiles/{sample}_rmChrM.bam",
 #    output:
 #        deduplicated = "../samples/bamfiles/{sample}_rmChrM_dedup.bam"
-#    params:
-#        #reference = config["reference_align_genome"], 
 #    conda:
-#        "../envs/picard.yaml"
+#        "../envs/samtools_env.yaml"
+#    threads: 4
 #    message:
 #        """--- deduplicating reads---"""
 #    shell:
-#        """ """
+#        """sambamba markdup -t {threads} {input.bamfile} {output.deduplicated}"""
 #
 #rule removeMitochondrial:
 #    input:
@@ -54,66 +65,79 @@
 #    shell:
 #        """ """
 #
-#rule sortbam:
-#    input:
-#        bamfile = "../samples/bamfiles/{sample}.bam",
-#    output:
-#        bamfile = "../samples/bamfiles/{sample}.bam",
-#    params:
-#        #reference = config["reference_align_genome"], 
-#    conda:
-#        "../envs/samtools.yaml"
-#    message:
-#        """--- indexing the bamfile ---"""
-#    shell:
-#        """ """
 #
-#rule sam2bam:
+#rule mergebam:
 #    input:
-#        samfile = "../samples/samfiles/{sample}.sam",
+#        sorted_bamfile = sample_work_path + "/bamfiles/{sample}_sorted.bam",
 #    output:
-#        bamfile = "../samples/bamfiles/{sample}.bam",
-#    params:
-#        #reference = config["reference_align_genome"], 
+#        merged_bamfile = sample_work_path + "/bamfiles/{subsample}_merged.bam",
 #    conda:
-#        "../envs/samtools.yaml"
+#        "../envs/samtools_env.yaml"
+#    params: outdirectory = sample_work_path + "/bamfiles" #this is where temporary compression files are put
+#    threads: 8 
 #    message:
-#        """--- converting {input.samfile} to {output.bamfile} ---"""
+#        """--- sorting the bamfile ---"""
 #    shell:
-#        """ """
+#        """samtools sort -T {params.outdirectory} -@ {threads} -o {output.sorted_bamfile} {input.bamfile} """
+
+
+rule sortbam:
+    input:
+        bamfile = sample_work_path + "/bamfiles/{sample}.bam",
+    output:
+        sorted_bamfile = sample_work_path + "/bamfiles/{sample}_sorted.bam",
+    conda:
+        "../envs/samtools_env.yaml"
+    params: outdirectory = sample_work_path + "/bamfiles" #this is where temporary compression files are put
+    threads: 8 
+    message:
+        """--- sorting the bamfile ---"""
+    shell:
+        """samtools sort -T {params.outdirectory} -@ {threads} -o {output.sorted_bamfile} {input.bamfile} """
+
+
+rule sam2bam:
+    input:
+        samfile = sample_work_path + "/samfiles/{sample}.sam",
+    output:
+        bamfile = sample_work_path + "/bamfiles/{sample}.bam",
+    conda:
+        "../envs/samtools_env.yaml"
+    threads: 4 
+    message:
+        """--- converting {input.samfile} to {output.bamfile} ---"""
+    shell:
+        """samtools view -bh -@ {threads} -o {output.bamfile} {input.samfile}"""
 
 rule align:
     input:
-        forward_paired = "../samples/trimmed/{sample}_1_fastqc_tpaired.fastq",
-        reverse_paired = "../samples/trimmed/{sample}_2_fastqc_tpaired.fastq",
+        forward_paired = sample_work_path + "/trimmed/{sample}_1_fastqc_tpaired.fastq",
+        reverse_paired = sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq",
 
     output:
-        samfile = "../samples/samfiles/{sample}.sam",
+        samfile = sample_work_path + "/samfiles/{sample}.sam",
     params:
-        #reference = config["reference_align_genome"], 
-        reference = "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta",
+        reference = reference_align_genome
     conda:
         "../envs/bwa.yaml"
     message:
         """--- Aligning reads to reference."""
     threads: 8 
-    #takes a look at how many cores are available to snakemake and give 75 % of them to this rule as it is the slowest one
     shell:
-        """bwa mem -t 8 {params.reference} {input.forward_paired} {input.reverse_paired} > {output.samfile} """
+        """bwa mem -t {threads} {params.reference} {input.forward_paired} {input.reverse_paired} > {output.samfile} """
 
 
 rule trimming:
     input:
-        forward = "../samples/raw/{sample}_1.fastq",
-        reverse = "../samples/raw/{sample}_2.fastq",
-
+        forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
+        reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
-        forward_paired = "../samples/trimmed/{sample}_1_fastqc_tpaired.fastq",
-        reverse_paired = "../samples/trimmed/{sample}_2_fastqc_tpaired.fastq",
-        forward_unpaired = "../samples/trimmed/{sample}_1_fastqc_tunpaired.fastq",
-        reverse_unpaired = "../samples/trimmed/{sample}_2_fastqc_tunpaired.fastq",
+        forward_paired = sample_work_path + "/trimmed/{sample}_1_fastqc_tpaired.fastq",
+        reverse_paired = sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq",
+        forward_unpaired = sample_work_path + "/trimmed/{sample}_1_fastqc_tunpaired.fastq",
+        reverse_unpaired = sample_work_path + "/trimmed/{sample}_2_fastqc_tunpaired.fastq",
     params:
-        adapter = config["adapters_file"]
+        adapter = adapters_file #this variable is defined in the Snakefile
     conda:
         "../envs/trim.yaml"
     threads: 4
@@ -125,11 +149,12 @@ rule trimming:
 
 rule fastqc:
     input:
-        forward = "../samples/raw/{sample}_1.fastq",
-        reverse = "../samples/raw/{sample}_2.fastq",
+        forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
+        reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
-        forward = "../samples/fastqc/{sample}/{sample}_1_fastqc.zip",
-        reverse = "../samples/fastqc/{sample}/{sample}_2_fastqc.zip",
+        forward = sample_work_path + "/fastqc/{sample}/{sample}_1_fastqc.zip",
+        reverse = sample_work_path + "/fastqc/{sample}/{sample}_2_fastqc.zip",
+    params: outdir= sample_work_path + "/fastqc/{sample}",
     conda:
         "../envs/fastqc.yaml"
     threads: 4
@@ -137,7 +162,7 @@ rule fastqc:
         """--- Quality check of raw data with Fastqc."""
     shell:
         """
-        fastqc --outdir  ../samples/fastqc/{wildcards.sample} --extract  -f fastq {input.forward} {input.reverse}
+        fastqc --outdir  {params.outdir} --extract  -f fastq {input.forward} {input.reverse}
         """
 
 
