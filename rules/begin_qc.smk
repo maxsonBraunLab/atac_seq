@@ -12,74 +12,6 @@
 #    shell:
 #        """fastq_screen --aligner bowtie2 --conf {params.conf} --outdir samples/fastqscreen/{wildcards.sample} {input}"""
 #
-#rule shiftReads:
-#    input:
-#        bamfile = "../samples/bamfiles/{sample}_rmChrM_dedup.bam",
-#    output:
-#        deduplicated = "../samples/bamfiles/{sample}_rmChrM_dedup_shiftedReads.bam"
-#    params:
-#        #reference = config["reference_align_genome"], 
-#    conda:
-#        "../envs/atacseqqc.yaml"
-#    message:
-#        """--- shifting reads---"""
-#    shell:
-#        """ """
-#rule index:
-#    input:
-#        deduplicated = "../samples/bamfiles/{sample}_rmChrM_dedup.bam",
-#    output:
-#        indexed = "",
-#    conda:
-#        "../envs/samtools_env.yaml"
-#    threads: 4 
-#    message:
-#        """--- indexing reads---"""
-#    shell:
-#        """sambamba index -t {threads} {input.deduplicated} {output.indexed}"""
-#
-#rule dedup:
-#    input:
-#        bamfile = "../samples/bamfiles/{sample}_rmChrM.bam",
-#    output:
-#        deduplicated = "../samples/bamfiles/{sample}_rmChrM_dedup.bam"
-#    conda:
-#        "../envs/samtools_env.yaml"
-#    threads: 4
-#    message:
-#        """--- deduplicating reads---"""
-#    shell:
-#        """sambamba markdup -t {threads} {input.bamfile} {output.deduplicated}"""
-#
-#rule removeMitochondrial:
-#    input:
-#        bamfile = "../samples/bamfiles/{sample}.bam",
-#    output:
-#        bamfile = "../samples/bamfiles/{sample}_rmChrM.bam",
-#    params:
-#        #reference = config["reference_align_genome"], 
-#    conda:
-#        "../envs/samtools.yaml"
-#    message:
-#        """--- Removing mitochondrial reads---"""
-#    shell:
-#        """ """
-#
-#
-#rule mergebam:
-#    input:
-#        sorted_bamfile = sample_work_path + "/bamfiles/{sample}_sorted.bam",
-#    output:
-#        merged_bamfile = sample_work_path + "/bamfiles/{subsample}_merged.bam",
-#    conda:
-#        "../envs/samtools_env.yaml"
-#    params: outdirectory = sample_work_path + "/bamfiles" #this is where temporary compression files are put
-#    threads: 8 
-#    message:
-#        """--- sorting the bamfile ---"""
-#    shell:
-#        """samtools sort -T {params.outdirectory} -@ {threads} -o {output.sorted_bamfile} {input.bamfile} """
-
 
 rule sortbam:
     input:
@@ -115,7 +47,7 @@ rule align:
         reverse_paired = sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq",
 
     output:
-        samfile = sample_work_path + "/samfiles/{sample}.sam",
+        samfile = temp(sample_work_path + "/samfiles/{sample}.sam"),
     params:
         reference = reference_align_genome
     conda:
