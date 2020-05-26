@@ -64,10 +64,10 @@ rule trimming:
         forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
         reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
-        forward_paired = sample_work_path + "/trimmed/{sample}_1_fastqc_tpaired.fastq",
-        reverse_paired = sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq",
-        forward_unpaired = sample_work_path + "/trimmed/{sample}_1_fastqc_tunpaired.fastq",
-        reverse_unpaired = sample_work_path + "/trimmed/{sample}_2_fastqc_tunpaired.fastq",
+        forward_paired = temp(sample_work_path + "/trimmed/{sample}_1_fastqc_tpaired.fastq"),
+        reverse_paired = temp(sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq"),
+        forward_unpaired = temp(sample_work_path + "/trimmed/{sample}_1_fastqc_tunpaired.fastq"),
+        reverse_unpaired = temp(sample_work_path + "/trimmed/{sample}_2_fastqc_tunpaired.fastq"),
     params:
         adapter = adapters_file #this variable is defined in the Snakefile
     conda:

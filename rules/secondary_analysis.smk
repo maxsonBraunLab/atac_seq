@@ -1,7 +1,8 @@
 rule peak_catalog:
     input:
         peaks = expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES),
-        bamfiles = expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam", merged_sample=MERGED_SAMPLES),
+        bamfiles = expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES),
+
     output:
         reads_catalog = sample_work_path + "/bamfiles/reads_catalog_counts.bed",
     params:
@@ -9,10 +10,10 @@ rule peak_catalog:
         reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
         present_in_number = 2,
         blacklist = blacklist_file,
-        header = ", , , ," + ", ".join(expand("{sample_id}", sample_id=MERGED_SAMPLES)) + '\n',
+        header = "Chr,start,stop,V4,V5,V6," + ", ".join(expand("{sample_id}", sample_id=MERGED_SAMPLES)),
         peaks_input = " ".join(expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES)),
         script_file = "./scripts/computing_peak_catalog.R",
-        bams_input = " ".join(expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam", merged_sample=MERGED_SAMPLES)),
+        bams_input = " ".join(expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES)),
     conda:
         "../envs/peaks_catalog.yaml"
     shell:
@@ -21,6 +22,9 @@ rule peak_catalog:
         cat {params.peaks_input} >> {params.merged_bed}
         Rscript --vanilla {params.script_file} {params.merged_bed} {params.blacklist} {params.present_in_number} {params.reads_catalog_bed}
         bedtools multicov -bams {params.bams_input} -bed {params.reads_catalog_bed} >> {output.reads_catalog}
+        sed -i "1i {params.header}" {output.reads_catalog}
+        echo {params.header}
+        echo {params.bams_input}
         """
 
 #bedtools multicov
@@ -36,8 +40,6 @@ rule peak_catalog:
 #        "../envs/HOMER.yaml"
 #    threads: 4
 #    params:
-#        genome = "/home/groups/MaxsonLab/indices/mm10/mm10.fa",
-#        size = "200",
 #        directory = sample_work_path + "/bamfiles/{merged_sample}_homerout/"
 #    message:
 #        """--- running HOMER---"""
@@ -50,7 +52,7 @@ rule peak_catalog:
 
 rule MACS:
     input:
-        bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam"
+        bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam"
     output:
         summits = sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak"
     conda:

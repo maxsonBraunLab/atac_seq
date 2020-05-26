@@ -1,7 +1,6 @@
 rule makeBigwig:
     input:
-        quality = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
-        deduplicated = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam.bai",
+        quality = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam",
     output:
         bigwig = sample_work_path + "/fully_filtered/{merged_sample}_tracks_rpkm_5window_smooth.bw",
         bigwig_rough = sample_work_path + "/fully_filtered/{merged_sample}_tracks_rpkm_5window_rough.bw",
@@ -18,15 +17,16 @@ rule makeBigwig:
 
         """
 #rule bamcoverage bedtools multicov [OPTIONS] -bams BAM1 BAM2 BAM3 ... BAMn -bed  <BED/GFF/VCF>
-# This uses the r_analysis environment
-#
 
 rule downSample:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
-        downsample_list = sample_work_path + "/bamfiles/downsample_list.txt"
+        downsample_list = sample_work_path + "/bamfiles/downsample_list.txt",
     output:
-        bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReadsDownSample.bam",
+        bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam",
+        index = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam.bai",
+        input_index = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam.bai",
+        input_sort = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam",
     conda:
         "../envs/sambamba.yaml"
     threads: 4 
@@ -34,18 +34,20 @@ rule downSample:
         """---normalizing reads---"""
     shell:
         """
+        sambamba sort -t {threads} {input.bamfile} -o {output.input_sort}
+        sambamba index -t {threads} {output.input_sort} {output.input_index}
         export PATH=$PATH:/opt/installed/samtools-1.6/bin/
-        samtools view -b -h -s 1.$(grep {wildcards.merged_sample} {params.subsample_file}| awk '{{print $2}}') {input.bamfile} {output.bamfile}        
-        
+        if [[ $(grep {wildcards.merged_sample} {input.downsample_list}) ]]; then samtools view -@ 4 -b -h -s 1.$(grep {wildcards.merged_sample} {input.downsample_list}| awk '{{print $2}}') {output.input_sort} -o {output.bamfile}; else cp {output.input_sort} {output.bamfile}; fi 
+        sambamba index -t {threads} {output.bamfile} {output.index}
         """
 
 rule createDownsample:
     input:
         bamfile = expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam", merged_sample=MERGED_SAMPLES),
         readsfile = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_depths.csv", merged_sample=MERGED_SAMPLES),
-        index = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam.bai",
     output:
-        downsample_list = sample_work_path + "/bamfiles/downsample_list.txt"
+        downsample_list = sample_work_path + "/bamfiles/downsample_list.txt",
+        filtered_list = sample_work_path + "/bamfiles/samples_downsample_information.txt",
     message:
         """--calculating normalization factor to subsample by---"""
     run:
@@ -54,19 +56,28 @@ rule createDownsample:
         for file in input.readsfile:
             dataframes.append(pd.read_csv(file, names=["name","description","reads"]))
         merged_dataframe = pd.concat(dataframes, ignore_index=True)
+        print(merged_dataframe)        
         filtered = merged_dataframe[merged_dataframe.description=="satisfy_quality"]
+        print(filtered)
+        filtered = filtered.drop_duplicates()
+        print(filtered)
         filtered['downsample'] = filtered['reads'].min() / filtered['reads']
+        print(filtered)
+        filtered.to_csv(output.filtered_list, header=True, index=False, sep='\t')
         out_data = filtered.loc[:,["name", "downsample"]]
+        normalizing_sample = out_data[out_data.downsample == 1]
+        print(normalizing_sample)
+        out_data = out_data[out_data.downsample < 1]
+        out_data["downsample"] = (round(out_data["downsample"], 8)*100000000).astype(int)
         out_data.to_csv(output.downsample_list, header=False, index=False, sep='\t')
 
 
 rule shiftReads:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam",
-        indexed = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam.bai",
+        index = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam.bai",
     output:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
-        index = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam.bai",
     conda:
         "../envs/deeptools.yaml"
     threads: 4 
@@ -75,9 +86,6 @@ rule shiftReads:
     shell:
         """
         alignmentSieve --bam {input.bamfile} --outFile {output.bamfile} --numberOfProcessors {threads} --ATACshift
-
-        export PATH=$PATH:/opt/installed/samtools-1.6/bin/
-        samtools index -b {output.bamfile} {output.index}        
 
         """
 
