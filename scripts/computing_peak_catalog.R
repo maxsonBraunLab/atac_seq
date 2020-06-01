@@ -63,8 +63,8 @@ peaks_catalog_stretched <- peaks_catalog %>%
 peaks_merged <- peaks_catalog %>%
   reduce_ranges()
 # Then to get rid of the tiny amount at the end
-# ranges %>% anchor_start() %>% stretch(-1)
-
+peaks_merged <- peaks_merged %>% anchor_start() %>% stretch(-1)
+peaks_merged <- peaks_merged  %>% mutate(id = paste0("peak_number_",row_number()))
 
 write_bed(peaks_merged, bedfile)
 
