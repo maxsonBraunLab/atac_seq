@@ -10,10 +10,10 @@ rule peak_catalog:
         reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
         present_in_number = 2,
         blacklist = blacklist_file,
-        header = '\t'.join(["Chr","start","stop","V4","V5","V6"]) + '\t' + '\t'.join(expand("{sample_id}", sample_id=MERGED_SAMPLES).sort()),
-        peaks_input = " ".join(expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES).sort()),
+        header = '\t'.join(["Chr","start","stop","V4","V5","V6"]) + '\t' + '\t'.join(sorted(expand("{sample_id}", sample_id=MERGED_SAMPLES))),
+        peaks_input = " ".join(sorted(expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES))),
         script_file = "./scripts/computing_peak_catalog.R",
-        bams_input = " ".join(expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES).sort()),
+        bams_input = " ".join(sorted(expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES))),
         #we are sorting both of our bamfiles and our header. This will order the headers as well as the bams in a way that makes them group together so that it is easier for analysis
 
     conda:
@@ -61,7 +61,7 @@ rule MACS:
         "../envs/MACS.yaml"
     threads: 4
     params:
-        genome = "1.87e9",
+        genome = macs_genome_size, 
         name = "{merged_sample}_macs",
         directory = sample_work_path + "/bamfiles/{merged_sample}_macsout"
     message:

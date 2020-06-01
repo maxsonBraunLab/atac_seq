@@ -204,7 +204,9 @@ rule mergeBam:
     message:
          """--- sorting the bamfile ---"""
     shell:
-         """samtools merge -@ {threads} {output.merged_bamfile} {input.lane1} {input.lane2}"""
+         """ cp {input.lane1} {output.merge_bamfile} """
+# should not be double counting
+##         """samtools merge -@ {threads} {output.merged_bamfile} {input.lane1} {input.lane2}"""
 
 
 
