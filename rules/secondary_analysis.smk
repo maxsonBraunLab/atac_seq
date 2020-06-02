@@ -10,7 +10,7 @@ rule peak_catalog:
         reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
         present_in_number = 2,
         blacklist = blacklist_file,
-        header = '\t'.join(["Chr","start","stop","V4","V5","V6"]) + '\t' + '\t'.join(sorted(expand("{sample_id}", sample_id=MERGED_SAMPLES))),
+        header = '\t'.join(["Chr","start","stop","V4","V5","V6","ID"]) + '\t' + '\t'.join(sorted(expand("{sample_id}", sample_id=MERGED_SAMPLES))),
         peaks_input = " ".join(sorted(expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES))),
         script_file = "./scripts/computing_peak_catalog.R",
         bams_input = " ".join(sorted(expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES))),
