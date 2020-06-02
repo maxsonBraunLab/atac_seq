@@ -64,7 +64,7 @@ peaks_merged <- peaks_catalog %>%
   reduce_ranges()
 # Then to get rid of the tiny amount at the end
 peaks_merged <- peaks_merged %>% anchor_start() %>% stretch(-1)
-peaks_merged <- peaks_merged  %>% mutate(id = paste0("peak_number_",row_number()))
+peaks_merged <- peaks_merged  %>% as.data.frame() %>% mutate(id = paste0("consensus_peak_",row_number())) %>% as_granges()
 
 write_bed(peaks_merged, bedfile)
 
