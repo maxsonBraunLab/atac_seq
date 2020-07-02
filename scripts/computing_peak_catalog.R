@@ -16,8 +16,8 @@ library(stringr)
 #This is the location for our merged narrow peaks file
 np_file <- args[1]
 blacklist_file <- args[2]
-genome_name <- "hg38"
-#genome_name <- args[5]
+#genome_name <- "hg38"
+genome_name <- args[5]
 
 presence_in_samples <- as.numeric(args[3])
 #set the name that we want for the final out file
@@ -64,7 +64,9 @@ peaks_merged <- peaks_catalog %>%
   reduce_ranges()
 # Then to get rid of the tiny amount at the end
 peaks_merged <- peaks_merged %>% anchor_start() %>% stretch(-1)
-peaks_merged <- peaks_merged  %>% as.data.frame() %>% mutate(id = paste0("consensus_peak_",row_number())) %>% as_granges()
+peaks_merged
+peaks_merged <- peaks_merged  %>% as.data.frame() %>% mutate(name = paste0("consensus_peak_",row_number())) %>% as_granges()
+peaks_merged
 
 write_bed(peaks_merged, bedfile)
 
