@@ -1,10 +1,6 @@
 # Snakemake workflow: atac_seq
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.0-brightgreen.svg)](https://snakemake.bitbucket.io)
-[![Build Status](https://travis-ci.org/snakemake-workflows/atac_seq.svg?branch=master)](https://travis-ci.org/snakemake-workflows/atac_seq)
-
-This is the template for a new Snakemake workflow. Replace this text with a comprehensive description covering the purpose and domain.
-Insert your code into the respective folders, i.e. `scripts`, `rules`, and `envs`. Define the entry point of the workflow in the `Snakefile` and the main configuration in the `config.yaml` file.
 
 ## Authors
 
@@ -19,11 +15,16 @@ Insert your code into the respective folders, i.e. `scripts`, `rules`, and `envs
 If you simply want to use this workflow, download and extract the [latest release](https://github.com/snakemake-workflows/atac_seq/releases).
 If you intend to modify and further extend this workflow or want to work under version control, fork this repository as outlined in [Advanced](#advanced). The latter way is recommended.
 
-In any case, if you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this repository and, if available, its DOI (see above).
+Installing the workflow involves cloning this directory and ensuring that you have Snakemake added to your path. To ensure that you have Snakemake installed you can run `which snakemake` and it will tell you which snakemake you have installed. Once you have cloned the workflow and checked your path you need to ensure that you have correctly formatted your configuration file. 
+
+
 
 #### Step 2: Configure workflow
 
 Configure the workflow according to your needs via editing the file `config.yaml`.
+alternatively you can create your own configuration file and specify it when running snakemake with `snakemake --configfile my_config_file.yaml`
+viewing the example configuration file will specify what values are needed where.
+
 
 #### Step 3: Execute workflow
 
@@ -31,32 +32,12 @@ Test your configuration by performing a dry-run via
 
     snakemake --use-conda -n
 
-Execute the workflow locally via
-
-    snakemake --use-conda --cores $N
-
-using `$N` cores or run it in a cluster environment via
-
-    snakemake --use-conda --cluster qsub --jobs 100
-
-or
-
-    snakemake --use-conda --drmaa --jobs 100
-
-If you not only want to fix the software stack but also the underlying OS, use
-
-    snakemake --use-conda --use-singularity
+This pipeline requires the usage of conda to run as all of its external dependencies are installed using conda.
+its important that every time the pipeline is run that `--use-conda` is also called.
 
 in combination with any of the modes above.
 See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html) for further details.
 
-# Step 4: Investigate results
-
-After successful execution, you can create a self-contained interactive HTML report with all results via:
-
-    snakemake --report report.html
-
-This report can, e.g., be forwarded to your collaborators.
 
 ### Advanced
 
@@ -74,6 +55,3 @@ The following recipe provides established best practices for running and extendi
 10. Optional: Delete the local clone/workdir to free space.
 
 
-## Testing
-
-Tests cases are in the subfolder `.test`. They are automtically executed via continuous integration with Travis CI.
