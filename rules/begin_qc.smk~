@@ -45,10 +45,9 @@ rule align:
 
 
 rule trimming:
-#error: reverse is reserved for internal use
     input:
-        forward_strand = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
-        reverse_strand = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
+        forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
+        reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
         forward_paired = temp(sample_work_path + "/trimmed/{sample}_1_fastqc_tpaired.fastq"),
         reverse_paired = temp(sample_work_path + "/trimmed/{sample}_2_fastqc_tpaired.fastq"),
@@ -60,37 +59,36 @@ rule trimming:
         "../envs/trim.yaml"
     threads: 4
     message:
-        """--- Trimming ---"""
+        """--- Trimming."""
     shell:
-        """trimmomatic PE {input.forward_strand} {input.reverse_strand} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired}   ILLUMINACLIP:{params.adapter}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30"""
+        """trimmomatic PE {input.forward} {input.reverse} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired}   ILLUMINACLIP:{params.adapter}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30"""
 
 
-#rule multiqc:
-#    input: 
-#        fastqc_done = expand(sample_work_path + "/fastqc/{sample}_fastqc.done", sample=MERGED_SAMPLES),
-#        fastq_screen_done = expand(sample_work_path + "/fastqscreen/{sample}" + "_fastqscreen_done.txt", sample=MERGED_SAMPLES),
-#    output:
-#        qc_done = sample_work_path + "/multiqc/done.txt",
-#    shell:
-#        """ touch {output.qc_done} """
-#
+rule multiqc:
+    input: 
+        fastqc_done = expand(sample_work_path + "/fastqc/{sample}_fastqc.done", sample=MERGED_SAMPLES),
+        fastq_screen_done = expand(sample_work_path + "/fastqscreen/" + prefix + "{sample}" + readreverse_postfix + "_fastqscreen_done.txt", sample=MERGED_SAMPLES),
+    output:
+        qc_done = sample_work_path + "/multiqc/done.txt",
+    shell:
+        """ touch {output.qc_done} """
+
 rule fastqc:
     input:
-        forward_strand = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
-        reverse_strand = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
+        forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
+        reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
-        fastqc_done = sample_work_path + "/fastqc/{sample}_fastqc_done.txt",
+        fastqc_done = sample_work_path + "/fastqc/{sample}_fastqc.done",
         #reverse = sample_work_path + "/fastqc/{sample}_2_fastqc.zip",
-    params: 
-        outdir= sample_work_path + "/fastqc/{sample}",
+    params: outdir= sample_work_path + "/fastqc/{sample}",
     conda:
         "../envs/fastqc.yaml"
     threads: 4
     message:
         """--- Quality check of raw data with Fastqc."""
     shell:
-        """    
-        fastqc --outdir  {params.outdir} --extract  -f fastq {input.forward_strand} {input.reverse_strand}
+        """
+        fastqc --outdir  {params.outdir} --extract  -f fastq {input.forward} {input.reverse}
         touch {output.fastqc_done}
         """
 
@@ -102,12 +100,12 @@ rule fastqc:
 
 rule fastqscreen:
     input:
-        forward_strand = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
-        reverse_strand = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
+        forward = raw_sample_folder + prefix + "{sample}" + readforward_postfix,
+        reverse = raw_sample_folder + prefix + "{sample}" + readreverse_postfix,
     output:
         #out_forward = sample_work_path + "/fastqscreen/{sample}/" + prefix + "{sample}" + readforward_postfix + "_screen.html",
         #out_reverse = sample_work_path + "/fastqscreen/{sample}/" + prefix + "{sample}" + readreverse_postfix + "_screen.html",
-        fastq_screen_done = sample_work_path + "/fastqscreen/{sample}" + "_fastqscreen_done.txt",
+        fastq_screen_done = sample_work_path + "/fastqscreen/" + prefix + "{sample}" + readreverse_postfix + "_fastqscreen_done.txt",
 
     params:
         conf = fastq_screen_conf, 
@@ -116,8 +114,8 @@ rule fastqscreen:
         "../envs/fastqscreen.yaml"
     shell:
         """
-        fastq_screen --aligner bowtie2 --conf {params.conf} --outdir {params.out_dir} {input.forward_strand}
-        fastq_screen --aligner bowtie2 --conf {params.conf} --outdir {params.out_dir} {input.reverse_strand}
+        fastq_screen --aligner bowtie2 --conf {params.conf} --outdir {params.out_dir} {input.forward}
+        fastq_screen --aligner bowtie2 --conf {params.conf} --outdir {params.out_dir} {input.reverse}
         touch {output.fastq_screen_done}
         """
 

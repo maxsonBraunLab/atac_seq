@@ -2,8 +2,8 @@ rule makeBigwig:
     input:
         quality = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam",
     output:
-        bigwig = sample_work_path + "/fully_filtered/{merged_sample}_tracks_rpkm_5window_smooth.bw",
-        bigwig_rough = sample_work_path + "/fully_filtered/{merged_sample}_tracks_rpkm_5window_rough.bw",
+        bigwig = sample_work_path + "/fully_filtered/{merged_sample}_tracks_5window_smooth.bw",
+        bigwig_rough = sample_work_path + "/fully_filtered/{merged_sample}_tracks_5window_rough.bw",
 
     conda:
         "../envs/deeptools.yaml"
@@ -12,8 +12,8 @@ rule makeBigwig:
         """--- making bigwig---"""
     shell:
         """
-        bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15  --normalizeUsing RPKM
-        bamCoverage --bam {input.quality} -o {output.bigwig_rough} --numberOfProcessors {threads} --skipNAs --binSize 5 --normalizeUsing RPKM
+        bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15  
+        bamCoverage --bam {input.quality} -o {output.bigwig_rough} --numberOfProcessors {threads} --skipNAs --binSize 5 
 
         """
 #rule bamcoverage bedtools multicov [OPTIONS] -bams BAM1 BAM2 BAM3 ... BAMn -bed  <BED/GFF/VCF>
@@ -57,11 +57,11 @@ rule createDownsample:
             dataframes.append(pd.read_csv(file, names=["name","description","reads"]))
         merged_dataframe = pd.concat(dataframes, ignore_index=True)
         print(merged_dataframe)        
-        filtered = merged_dataframe[merged_dataframe.description=="satisfy_quality"]
+        filtered = merged_dataframe[merged_dataframe.description=="satisfy_quality"] #ensure that we are normalizing to the final processed reads
         print(filtered)
         filtered = filtered.drop_duplicates()
         print(filtered)
-        filtered['downsample'] = filtered['reads'].min() / filtered['reads']
+        filtered['downsample'] = pd.to_numeric(filtered['reads'].min()) / pd.to_numeric(filtered['reads'])
         print(filtered)
         filtered.to_csv(output.filtered_list, header=True, index=False, sep='\t')
         out_data = filtered.loc[:,["name", "downsample"]]
@@ -204,7 +204,7 @@ rule mergeBam:
     message:
          """--- sorting the bamfile ---"""
     shell:
-         """ cp {input.lane1} {output.merge_bamfile} """
+         """ cp {input.lane1} {output.merged_bamfile} """
 # should not be double counting
 ##         """samtools merge -@ {threads} {output.merged_bamfile} {input.lane1} {input.lane2}"""
 
