@@ -1,19 +1,17 @@
-cluster: "srun --cpus-per-task {threads}" #--mem={resources.mem_mb}"
+cluster: "sbatch --cpus-per-task {threads} --mem-per-cpu=3gb --time=24:00:00" #--mem={resources.mem_mb}"
 
 #^^This is one of the most important parts of the snakemake pipeline
-#This is formatted in the exact same way that all other shell commands are formatted in snakemake
-#this will submit our job to the slurm manager with this command
-#This will run the following shell command, and use it to submit each job after you run snakemake
-#This command can be as fancy as you like for srun, however, most of the fiddling should be done in how you submit the snakemake
-#This will be the sbatch command which should specify the total number of nodes and memory that is given to snakemake
-#The srun command will primarily just be deciding how to divvy up the memory that
-
-
-#The commands below will be submitted when you run snakemake in the same way as if you had submitted 
-#them as options. For example writing jobs: 20 here is the same as specifying --jobs 20 on the command line
-
-jobs: 20 #never have more than 20 jobs running at the same time
+##This is formatted in the exact same way that all other shell commands are formatted in snakemake
+##this will submit our job to the slurm manager with this command
+##This will run the following shell command, and use it to submit each job after you run snakemake
+##This command can be as fancy as you like for srun, however, most of the fiddling should be done in how you submit the snakemake
+##This will be the sbatch command which should specify the total number of nodes and memory that is given to snakemake
+##The srun command will primarily just be deciding how to divvy up the memory that
+#
+#
+##The commands below will be submitted when you run snakemake in the same way as if you had submitted 
+##them as options. For example writing jobs: 20 here is the same as specifying --jobs 20 on the command line
+#
+jobs: 50 #never have more than 20 jobs running at the same time
 latency-wait: 60 #wait at least 60 seconds after a job has finished for the files to "show up" in case of file system latency
-
-
-
+#
