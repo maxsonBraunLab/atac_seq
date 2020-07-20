@@ -1,4 +1,4 @@
-cluster: "sbatch --cpus-per-task {threads} --mem-per-cpu=3gb --time=24:00:00" #--mem={resources.mem_mb}"
+cluster: "srun --cpus-per-task {threads} --mem-per-cpu=3gb --time=24:00:00" #--mem={resources.mem_mb}"
 
 #^^This is one of the most important parts of the snakemake pipeline
 ##This is formatted in the exact same way that all other shell commands are formatted in snakemake
