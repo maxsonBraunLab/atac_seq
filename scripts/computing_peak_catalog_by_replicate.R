@@ -66,6 +66,7 @@ filtered_peaks$treatment <- as.character(map(filtered_peaks$name, (function (x) 
 peaks_list <- filtered_peaks %>% split(., filtered_peaks$treatment)
 
 catalog <- NULL
+names(peaks_list)
 for (item in 1:length(peaks_list)) {
 
     coverage <- compute_coverage(peaks_list[item]) %>%
@@ -74,8 +75,12 @@ for (item in 1:length(peaks_list)) {
        filter_by_non_overlaps(blacklist)
 
     print(head(peaks_list[item]))
-    print(head(coverage$treatment))
-    #write_bed(coverage, paste0(unique(coverage$treatment), "bed_peaks"))    
+    #Now lets get the name of what the condition is
+    #since we split into lists by name, the name of the list we are using
+    #will be associated with the condition that it is
+    treatment_text <- names(peaks_list)[item]
+    print(treatment_text)
+    write_bed(coverage, paste0(treatment_text, "_", bedfile) ) 
 
     if (length(catalog)==0) {
        catalog <- coverage 
