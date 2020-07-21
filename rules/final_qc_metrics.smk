@@ -1,3 +1,55 @@
+
+
+#rule annotate_peak_names_no_downsmpl:
+#    input:
+#        bedfile = sample_work_path + "/bamfiles/intersected_bedfile_nodownsample.bed",
+#    output:
+#        peak_information_catalog = sample_work_path + "/fully_filtered/intersected_bedfile_nodownsample_peakinfo.txt",
+#    params:
+#        genome = genome_name,
+#    conda:
+#        "../envs/HOMER.yaml"
+#    shell:
+#        """
+#        annotatePeaks.pl {input.bedfile} {params.genome} > {output.peak_information_catalog}
+#        """
+
+
+rule multi_intersect:
+    input:
+        expand(sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed_{sample_condition}.bed", sample_condition=SAMPLE_CONDITIONS),
+        reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed",
+    output:
+        bedfile = sample_work_path + "/bamfiles/intersected_bedfile_nodownsample.bed",
+    params:
+        bedfiles =  " ".join( sorted(expand(sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed_{sample_condition}.bed", sample_condition=sorted(SAMPLE_CONDITIONS)))),
+        names = " ".join( sorted(SAMPLE_CONDITIONS) ),
+    shell:
+        """
+        export PATH=$PATH:/home/groups/MaxsonLab/software/bedtools/
+        bedtools multiinter -i {params.bedfiles} -header -names {params.names} > {output.bedfile}
+
+        """
+#rule get_union_interval_from_sample_interval:
+#    input:
+#        sample_condition_catalog = 
+#        read_catalog = 
+#    output:
+#        sample_condition_catalog = 
+#    params:
+#    shell:
+#        """
+#        export PATH=$PATH:/home/groups/MaxsonLab/software/bedtools/
+#        bedtools intersect -wa -a {input.read_catalog} -b {input.sample_condition_catalog} > {output.sample_condition_catalog}
+#
+#        """
+#
+#
+#
+#
+#
+#
+
 rule count_macs_peaks:
     input:
         done = sample_work_path + "/fully_filtered/{merged_sample}_information_done.txt",
