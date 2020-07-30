@@ -1,0 +1,35 @@
+# This file should contain everything to configure the workflow on a global scale.
+# In case of sample based data, it should be complemented by a samples.tsv file that contains
+# one row per sample. It can be parsed easily via pandas.
+#
+
+#adapters file for usage to allow trimming to take place
+adapters_file: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta" 
+
+#need to use a mouse thing in order to align everything This is important
+alignment_reference: "/home/groups/MaxsonLab/indices/mm10/mm10.fa"
+
+#the location where the raw samples can be found
+raw_sample_folder: "/home/groups/MaxsonLab/input-data/MOLM_C57A_ATAC_merged_fastq/"
+
+#the size of the genome to be used for genome size effect cancellatino
+macs_genome_size: "1.87e9"
+
+#The location of the blacklist file that we will use to filter out regions that overlap a blacklist
+blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
+
+#the name of the genome that you are using for usage
+genome_name: "mm10"
+
+#prefix that allows you to split out files that you care about
+prefix: "C57"
+
+readforward_postfix: "_merged_1.fq.gz" #"_CKDL190141440-1a_H53YYBBXX_L2_1.fq.gz"
+readreverse_postfix: "_merged_2.fq.gz" #"_CKDL190141440-1a_H53YYBBXX_L2_2.fq.gz"
+sample_work_path: "../atac_c57" #_all_samples" #"../samples"
+LANES:
+  - ""
+  - ""
+
+metadata_file: "./C57_ATAC_metadata"
+
