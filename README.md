@@ -30,7 +30,20 @@ Some of these configurations are paths to databases or whole genomes. Some of th
 If you are using Human sample data then you can probably use some of the defaults in the pipeline that are included in the file titled `Snakefile`.
 This file also includes the final target outputs that will be created by the pipeline and can be edited if you want to include or not include certain final outputs from the pipeline.
 
+**Metadata File configuration**
+The metadata file is required to have two columns one titled SampleID and the other titled Condition
+This file also must be tab separated. When you run this pipeline in a dry run it will create a list of the sample names that it has found and print them out
+The script works by matching these sample names exactly to the SampleID strings that are present in the metadata file.
+One exception is if you use the `remove_filepath_regex:` option in the configuration file. This will perform a string replacement on the sample names that are listed
+before trying to match them to the SampleID strings. This can be useful if a large part of the filepath does not contain sample identifiers and is instead repeated.
+In this case you can simply write the part of the filepath that you care about in SampleID and cut off the rest with `remove_filepath_regex:`.
 
+An example of this is as follows:
+
+lets say I have samples in my sample list called `['sample1_long_filepath_to_ignore', 'sample2_long_filepath_to_ignore']`
+I can set my `remove_filepath_regex:` in my config file to `remove_filepath_regex = '_long_filepath_to_ignore'` .
+This would mean that now the SampleID list is looking for matches that look like this `['sample1','sample2']` these matches are used to create a dictionary that assigns 
+sample names to the condition that they are present in.
 
 #### Step 3: Execute workflow
 
