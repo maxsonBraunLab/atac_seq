@@ -1,4 +1,4 @@
-name: samtools_env
+name: sambamba 
 channels:
   - conda-forge
   - bioconda
@@ -16,6 +16,8 @@ channels:
   - https://repo.anaconda.com/pkgs/pro/linux-64
   - https://repo.anaconda.com/pkgs/pro/noarch
 dependencies:
+  - sambamba=0.6.8
+  - ldc=1.11.0
   - _libgcc_mutex=0.1
   - bzip2=1.0.8
   - ca-certificates=2019.6.16
