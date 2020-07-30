@@ -49,9 +49,11 @@ rule annotate_peak_names:
 rule peak_catalog:
     input:
         peaks = expand(sample_work_path + "/bamfiles/{merged_sample}_macsout/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES),
-        bamfiles = expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES),
+        #bamfiles = expand(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", merged_sample=MERGED_SAMPLES),
     output:
         reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
+        sample_condition_catalog = expand(sample_work_path + "/bamfiles/reads_catalog_intervals.bed_{sample_condition}.bed",sample_condition=SAMPLE_CONDITIONS),
+
     params:
         merged_bed = sample_work_path + "/bamfiles/all_broad_peaks.bed",
         reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",

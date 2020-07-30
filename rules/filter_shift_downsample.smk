@@ -1,3 +1,6 @@
+
+#This command creates the bigwig files to view from after the reads have been fully preprocessed
+#This command can take a while and eventually needs to be replaced with the smk process in the create_merged_bigwig.smk file
 rule makeBigwig:
     input:
         quality = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam",
@@ -18,6 +21,13 @@ rule makeBigwig:
         """
 #rule bamcoverage bedtools multicov [OPTIONS] -bams BAM1 BAM2 BAM3 ... BAMn -bed  <BED/GFF/VCF>
 
+
+#This rule downsapmles the bam files by taking an amount to downsample a file from the file downsample.list
+#Then this command uses the tool samtools -s to downsample the file to the correct percentage
+#currently this is not exact down to the number of reads but give me bamfiles within around 1% of each other
+#This rule uses a lot of complicated bash trickery and should be made more clear In line 4 I first grep the file to check to make sure that
+#the sample is in the downsample list, there is only one sample that is not and this is hte sample that will not be downsample that we are downsampling everything to
+#So if that is the sample we simply copy it to the _downsampled.bam, otherwise we grep out the sample name and take the second column where the sample percentage is and downsample the sample that amount
 rule downSample:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
@@ -59,19 +69,20 @@ rule createDownsample:
         print(merged_dataframe)        
         filtered = merged_dataframe[merged_dataframe.description=="satisfy_quality"] #ensure that we are normalizing to the final processed reads
         print(filtered)
-        filtered = filtered.drop_duplicates()
-        print(filtered)
-        filtered['downsample'] = pd.to_numeric(filtered['reads'].min()) / pd.to_numeric(filtered['reads'])
-        print(filtered)
+        filtered = filtered.drop_duplicates() #its possible that some values have been written more than once
+        print(filtered)                       #we want to drop these values as they are identical rows and are not needed
+        filtered['downsample'] = pd.to_numeric(filtered['reads'].min()) / pd.to_numeric(filtered['reads']) #what percentage of the smallest sample to downsample
+        print(filtered)  # each of the samples to then print the result
         filtered.to_csv(output.filtered_list, header=True, index=False, sep='\t')
         out_data = filtered.loc[:,["name", "downsample"]]
-        normalizing_sample = out_data[out_data.downsample == 1]
+        normalizing_sample = out_data[out_data.downsample == 1] # which one is hte normalizing sample
         print(normalizing_sample)
-        out_data = out_data[out_data.downsample < 1]
-        out_data["downsample"] = (round(out_data["downsample"], 8)*100000000).astype(int)
-        out_data.to_csv(output.downsample_list, header=False, index=False, sep='\t')
+        out_data = out_data[out_data.downsample < 1] #only keep samples that need to be downsampled and skip the ones that wont be
+        out_data["downsample"] = (round(out_data["downsample"], 8)*100000000).astype(int) #round the sample to the nearest number, I will add the . later
+        out_data.to_csv(output.downsample_list, header=False, index=False, sep='\t') #write everything out to a csv
 
-
+#ATAC sequencing involves a transposase that slightly shifts the reads when 
+#it is used. In order to correct this we need to 5, 4 offset the reads so that they line up with the actual accessibility locations
 rule shiftReads:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam",
@@ -89,6 +100,8 @@ rule shiftReads:
 
         """
 
+#many commands require that there is index for the bamfile that you are using. TODO: this command should
+#eventually be pulled together into the command that needs this index which is hte shifting rule  above
 rule index:
     input:
         deduplicated = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam",
@@ -108,6 +121,7 @@ rule index:
         
         """
 
+#Filter out reads that match the quality flags that we want in samtools
 rule samtoolsQuality:
      input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup.bam",
@@ -127,7 +141,9 @@ rule samtoolsQuality:
         """
         # Remove reads unmapped, mate unmapped, not primary alignment, reads failing platform, duplicates (-F 1804)
         # Retain properly paired reads -f 2
- 
+
+#deduplicate the reads that we have. This will get rid of potential PCR duplicates
+#After this step you might have a large difference in reads if some samples have a high percentage of duplicates 
 rule dedup:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM.bam",
@@ -146,6 +162,9 @@ rule dedup:
          samtools view -@ 4 -F 1024 -c {output.deduplicated}| xargs -I{{}} echo "{wildcards.merged_sample},no_duplicates,"{{}}$'\n'  >> {params.readsfile}
          """
 
+#Remove the mitochondrial reads This requires that the mitochondrial reads have the  name chrM so that you can grep them with an inverted search
+#This works for our current aligner and references, but if you get zero mitochondrial reads filtered out its possible that the mitochondrial chromosome
+#has a name that is different from "chrM"
 rule removeMitochondrial:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_sorted.bam", #change this to _merged if merging lanes
@@ -169,7 +188,8 @@ rule removeMitochondrial:
 
 #WE should be able to remove this part for anything that is not run on mutliple lanes, however not entirely sure
 #Will have to check once the data comes in
-
+#This allows us to merge samples from multiple lanes if necessary and takes the number of lanes from the
+#configuration file.
 rule mergeBam:
     input:
         lane1 = sample_work_path + "/bamfiles/{merged_sample}" + LANES[0] + "_sorted.bam",
@@ -183,7 +203,7 @@ rule mergeBam:
          """--- sorting the bamfile ---"""
     shell:
          """ cp {input.lane1} {output.merged_bamfile} """
-# should not be double counting
+# should not be double counting, however if lanes are different can use this command
 ##         """samtools merge -@ {threads} {output.merged_bamfile} {input.lane1} {input.lane2}"""
 
 

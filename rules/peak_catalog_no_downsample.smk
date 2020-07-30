@@ -1,8 +1,9 @@
+#This rule merges all of the catalog counts from the individual samples into one catalog for all of the samples
 rule merge_catalog_counts_no_downsmpl:
     input:
-         read_count = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed", merged_sample=MERGED_SAMPLES),
+        read_count = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts_ondownsamplepeaks.bed", merged_sample=MERGED_SAMPLES),
     output:
-        read_count = sample_work_path + "/fully_filtered/all_read_catalog_nodownsample_counts.bed",
+        read_count = sample_work_path + "/fully_filtered/all_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
     run:
         import pandas as pd
         dataframes = []
@@ -14,13 +15,15 @@ rule merge_catalog_counts_no_downsmpl:
         merged.to_csv(output.read_count, header=True, index=False, sep='\t')
  
 
-
+#This creates the peak catalog for an individual sample by counting the coverage individually
+#When counting reads in intervals all together bamcov had issues and would drop low count samples
+#This allows us to include low count samples
 rule peak_catalog_counts_no_downsmpl:
     input:
-        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed",
+        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
     output:
-        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed",
+        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam",
     params:
         header = '\t'.join(["Chr","start","stop","V4","V5","V6"]) + '\t' + "{merged_sample}",
@@ -38,6 +41,9 @@ rule peak_catalog_counts_no_downsmpl:
        
         """
 
+#This rule has two outputs, one is the overall peak catalog and another is the peak catalog for each sample condition
+#This can later be input into the bedtools commands to allow us to assign peaks in the sample condition catalogs to the 
+#corresponding peak in the overall peak catalog so that we can run bedtools multiintersect
 rule peak_catalog_no_downsmpl:
     input:
         peaks = expand(sample_work_path + "/bamfiles/{merged_sample}_macsout_nodownsample/{merged_sample}_macs_peaks.broadPeak", merged_sample=MERGED_SAMPLES),
@@ -64,7 +70,7 @@ rule peak_catalog_no_downsmpl:
         Rscript --vanilla {params.script_file} {params.merged_bed} {params.blacklist} {params.present_in_number} {output.reads_catalog_bed} {params.genome} {params.metadata} {params.regex} 
         """
 
-
+#This command runs MACS on the non downsampled bam files
 rule MACS_no_downsmpl:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam"

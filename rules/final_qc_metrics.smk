@@ -14,15 +14,15 @@
 #        annotatePeaks.pl {input.bedfile} {params.genome} > {output.peak_information_catalog}
 #        """
 
-
+#This runs the bedtools multi intersect command this command tells us which samples contribute to each of the
+#intervals, this allows us to tell which intervals are only present in certain sample conditions
 rule multi_intersect:
     input:
-        expand(sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed_{sample_condition}.bed", sample_condition=SAMPLE_CONDITIONS),
-        reads_catalog_bed = sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed",
+        expand(sample_work_path + "/bamfiles/reads_catalog_intervals.bed_{sample_condition}_formatted.bed", sample_condition=SAMPLE_CONDITIONS),
     output:
-        bedfile = sample_work_path + "/bamfiles/intersected_bedfile_nodownsample.bed",
+        bedfile = sample_work_path + "/bamfiles/intersected_catalog.bed",
     params:
-        bedfiles =  " ".join( sorted(expand(sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed_{sample_condition}.bed", sample_condition=sorted(SAMPLE_CONDITIONS)))),
+        bedfiles =  " ".join( sorted(expand(sample_work_path + "/bamfiles/reads_catalog_intervals.bed_{sample_condition}_formatted.bed", sample_condition=sorted(SAMPLE_CONDITIONS)))),
         names = " ".join( sorted(SAMPLE_CONDITIONS) ),
     shell:
         """
@@ -30,26 +30,25 @@ rule multi_intersect:
         bedtools multiinter -i {params.bedfiles} -header -names {params.names} > {output.bedfile}
 
         """
-#rule get_union_interval_from_sample_interval:
-#    input:
-#        sample_condition_catalog = 
-#        read_catalog = 
-#    output:
-#        sample_condition_catalog = 
-#    params:
-#    shell:
-#        """
-#        export PATH=$PATH:/home/groups/MaxsonLab/software/bedtools/
-#        bedtools intersect -wa -a {input.read_catalog} -b {input.sample_condition_catalog} > {output.sample_condition_catalog}
-#
-#        """
-#
-#
-#
-#
-#
-#
 
+#This runs a trick with bedtools intersect that allows us to determine
+#which of the overall intervals an interval in a sample is from and returns that interval
+#If we don't do this bedtools multiintersect will not provide contiguous intervals
+rule get_union_interval_from_sample_interval:
+    input:
+        sample_condition_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed_{sample_condition}.bed",
+        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
+    output:
+        sample_condition_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed_{sample_condition}_formatted.bed",
+    shell:
+        """
+        export PATH=$PATH:/home/groups/MaxsonLab/software/bedtools/
+        bedtools intersect -wa -a {input.read_catalog} -b {input.sample_condition_catalog} > {output.sample_condition_catalog}
+
+        """
+
+#This command counts the number of MACS peaks from the non downsampled bam files for usage in the 
+#quality catalog that we will be making
 rule count_macs_peaks:
     input:
         done = sample_work_path + "/fully_filtered/{merged_sample}_information_done.txt",
@@ -64,7 +63,9 @@ rule count_macs_peaks:
         touch {output.done}
         """
 
-
+#This rule provides a large amount of information that can be used for the quality information catalog
+#This information is all stored in a sample specific file in the path sample_work_path/fully_filtered/{merged_sample}_read_depths.csv
+#You can create a concatenation of all of these files by going into the fully filtered folder and running cat */*.csv 
 rule get_info:
     input:
         peaks = sample_work_path + "/bamfiles/{merged_sample}_macsout_nodownsample/{merged_sample}_macs_peaks.broadPeak",
