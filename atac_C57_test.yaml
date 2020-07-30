@@ -3,20 +3,32 @@
 # one row per sample. It can be parsed easily via pandas.
 #
 
-#adapters file for usage to allow trimming to take place
+#adapters file for usage to allow trimming to take place 
+#These adapters are specific to the type of sequencing that was performed
+#Trimming is not necessary if you end up changing the aligner to bowtie 2 which performs soft clipping
 adapters_file: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta" 
 
-#need to use a mouse thing in order to align everything This is important
+#The genome that you will be aligning everything to this is the most important value to check
+#below is the alignment reference for mouse genome mm10
 alignment_reference: "/home/groups/MaxsonLab/indices/mm10/mm10.fa"
+#below is the alignment reference for human genome 38a
+#alignment_reference: "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta"
 
 #the location where the raw samples can be found
 raw_sample_folder: "/home/groups/MaxsonLab/input-data/MOLM_C57A_ATAC_merged_fastq/"
 
 #the size of the genome to be used for genome size effect cancellatino
-macs_genome_size: "1.87e9"
+#Below this line is the default size for mouse
+macs_genome_size: "1.87e9" #mouse default size
+#And this is the size used for human genomes
+#macs_genome_size: "2.7e9" #human default genome size
 
 #The location of the blacklist file that we will use to filter out regions that overlap a blacklist
+#below is the default blacklist for mouse genome mm10
 blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
+#below this line is the default blacklist for human genome hg38
+#blacklist_file: "/home/groups/MaxsonLab/indices/GRch38/hg38.blacklist.v2.bed"
+
 
 #the name of the genome that you are using for usage
 genome_name: "mm10"
@@ -27,9 +39,19 @@ prefix: "C57"
 readforward_postfix: "_merged_1.fq.gz" #"_CKDL190141440-1a_H53YYBBXX_L2_1.fq.gz"
 readreverse_postfix: "_merged_2.fq.gz" #"_CKDL190141440-1a_H53YYBBXX_L2_2.fq.gz"
 sample_work_path: "../atac_c57" #_all_samples" #"../samples"
+
+#This is no longer needed unless you have multiple lanes that you wish to merge
+#If you do you can add a lane prefix to this config file and change the code in filter_shift_align.smk
+#and this pipeline will merge different lanes together
 LANES:
   - ""
   - ""
 
 metadata_file: "./C57_ATAC_metadata"
+
+#if there are samples that you want to include or exclude that match a certain regular expression
+#You can write that regular expression here and the pipeline will include or exclude them
+#include_samples_regex: ".*24.*"
+#exclude_samples_regex: ".*24Q2.*" 
+
 
