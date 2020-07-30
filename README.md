@@ -25,6 +25,12 @@ Configure the workflow according to your needs via editing the file `config.yaml
 alternatively you can create your own configuration file and specify it when running snakemake with `snakemake --configfile my_config_file.yaml`
 viewing the example configuration file will specify what values are needed where.
 
+An example configuration file is included that has information around what indices and databases to use.
+Some of these configurations are paths to databases or whole genomes. Some of these databases have already been downloaded by me.
+If you are using Human sample data then you can probably use some of the defaults in the pipeline that are included in the file titled `Snakefile`.
+This file also includes the final target outputs that will be created by the pipeline and can be edited if you want to include or not include certain final outputs from the pipeline.
+
+
 
 #### Step 3: Execute workflow
 
@@ -34,6 +40,13 @@ Test your configuration by performing a dry-run via
 
 This pipeline requires the usage of conda to run as all of its external dependencies are installed using conda.
 its important that every time the pipeline is run that `--use-conda` is also called.
+
+It is important that you remember to specity to use a profile path using `--profile /path/to/profile/folder`.
+For different versions of Snakemake sometimes this will lead to an error saying it did not find a profile configuration file.
+If this is the case then it is necessary that you provide the path to the profile configuration file with `--profile /path/to/profile/config.yaml`.
+
+It is possible to submit your snakemake command with the sbatch directive but it is also possible to just use a terminal multiplexer like `screen` or `tmux` as the snakemake scheduler process does not take up that much cpu or memory. However, its important that your profile is set up so that it sends jobs to the queue and does not run these jobs on the head node.
+
 
 in combination with any of the modes above.
 See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html) for further details.
