@@ -70,7 +70,8 @@ rule get_info:
     input:
         peaks = sample_work_path + "/bamfiles/{merged_sample}_macsout_nodownsample/{merged_sample}_macs_peaks.broadPeak",
         bamfile = sample_work_path + "/bamfiles/{merged_sample}.bam",
-        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed",
+        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
+        #read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed",
         filtered_bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
     output:
         done = sample_work_path + "/fully_filtered/{merged_sample}_information_done.txt",
