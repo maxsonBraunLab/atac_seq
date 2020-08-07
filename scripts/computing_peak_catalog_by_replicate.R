@@ -58,12 +58,21 @@ filtered_peaks <- peaks %>% filter(., str_detect(seqnames,"^chr[\\dXY]+$"))
 #replace_expression <- "-ATAC/.*"
 filtered_peaks$name <- as.character(filtered_peaks$name) %>% str_replace(., replace_expression,"")
 
+
+metadata$Condition <- as.character(metadata$Condition)
 #match the name of the condition to the name of the cleaned sample ID
 filtered_peaks$treatment <- as.character(map(filtered_peaks$name, (function (x) metadata[as.character(metadata$SampleID) == as.character(x),]$Condition)))
+print(unique(filtered_peaks$treatment))
+print(unique(filtered_peaks$name))
+
+print(unique(metadata$SampleID))
+print(unique(metadata$Condition))
 
 #now we are going to make a list of all the treatments by group and essentially apply reduce
 #reduce doesn't work here so instead we are using a for loop
 peaks_list <- filtered_peaks %>% split(., filtered_peaks$treatment)
+print("now for the names of the peaks list")
+print(names(peaks_list))
 
 catalog <- NULL
 names(peaks_list)
@@ -80,7 +89,7 @@ for (item in 1:length(peaks_list)) {
     #will be associated with the condition that it is
     treatment_text <- names(peaks_list)[item]
     print(treatment_text)
-    write_bed(coverage, paste0(treatment_text, "_", bedfile) ) 
+    write_bed(coverage, paste0(bedfile, "_", treatment_text, ".bed") ) 
 
     if (length(catalog)==0) {
        catalog <- coverage 
