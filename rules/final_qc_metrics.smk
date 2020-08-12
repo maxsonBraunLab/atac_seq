@@ -1,18 +1,66 @@
+#move all the end results files to a results folder
+rule move_files:
+    input:
+        sample_informtion_table = sample_work_path + "/results/sample_quality_information.tsv"
+        correlation_plot = sample_work_path + "/fully_filtered/correllation_plot.png",
+        intersected_read_catalog = sample_work_path + "/bamfiles/intersected_catalog.bed",
+        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
+        read_count = sample_work_path + "/fully_filtered/all_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
+    params:
+        result_dir = sample_work_path + "/results"
+    output:
+        sample_informtion_table = sample_work_path + "/results/sample_quality_information.tsv"
+        correlation_plot = sample_work_path + "/results/correlation_plot.png",
+        intersected_read_catalog = sample_work_path + "/results/intersected_catalog.bed",
+        read_catalog = sample_work_path + "/results/reads_catalog_intervals.bed",
+        read_count = sample_work_path + "/results/all_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
+    shell:
+        """
+        mkdir {params.result_dir}
+        cp {input.sample_information_table} {output.sample_information_table}
+        cp {input.correlation_plot} {output.correlation_plot}
+        cp {input.intersected_read_catalog} {output.intersected_read_catalog}
+        cp {input.read_catalog} {output.read_catalog}
+        cp {input.read_count} {output.read_count}
+        """
+
+#create a table that has quality information for each one of the samples
+rule create_quality_table:
+    input:
+        read_depths_qc = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_depths.csv", merged_sample=MERGED_SAMPLES),
+        done = sample_work_path + "/fully_filtered/{merged_sample}_count_peaks_done.txt",
+    params:
+        fully_filtered_path = sample_work_path + "/fully_filtered/*.csv",
+        sample_information_all = sample_work_path + "/fully_filtered/all_sample_information_nospaces.csv",
+    output:
+        sample_informtion_table = sample_work_path + "/results/sample_quality_information.tsv",
+    shell:
+        """
+        cat {params.fully_filtered_path} | sed '/^\s*$/d' > {params.sample_information_all}
+        Rscript --vanilla {params.sample_information_all} {output.sample_information_table}  
+        """
 
 
-#rule annotate_peak_names_no_downsmpl:
-#    input:
-#        bedfile = sample_work_path + "/bamfiles/intersected_bedfile_nodownsample.bed",
-#    output:
-#        peak_information_catalog = sample_work_path + "/fully_filtered/intersected_bedfile_nodownsample_peakinfo.txt",
-#    params:
-#        genome = genome_name,
-#    conda:
-#        "../envs/HOMER.yaml"
-#    shell:
-#        """
-#        annotatePeaks.pl {input.bedfile} {params.genome} > {output.peak_information_catalog}
-#        """
+rule plotCorrelation:
+    input:
+        bigwig_rough = expand(sample_work_path + "/fully_filtered/{merged_sample}_tracks_5window_rough.bw", merged_sample=MERGED_SAMPLES),
+    params:
+        bigwigs = " ".join(sorted(expand(sample_work_path + "/fully_filtered/{merged_sample}_tracks_5window_rough.bw", merged_sample=MERGED_SAMPLES))),
+        names = " ".join(sorted(expand("{merged_sample}", merged_sample=MERGED_SAMPLES))),
+    output:
+        scores = sample_work_path + "/fully_filtered/sample_scores.npz", 
+        correlation_plot = sample_work_path + "/fully_filtered/correllation_plot.png",
+    conda:
+        "../envs/deeptools.yaml"
+    threads: 8 
+    message:
+        """Creating multibigwig"""
+    shell:
+        """
+        multiBigwigSummary bins -b {params.bigwigs} --labels {params.names} -out {output.scores} -p {threads}
+        
+        plotCorrelation -in {output.scores} --corMethod pearson --skipZeros --plotTitle "Pearson Correlation of Read Counts"  --whatToPlot heatmap --colorMap RdYlBu --plotNumbers -o {output.correlation_plot} 
+        """
 
 #This runs the bedtools multi intersect command this command tells us which samples contribute to each of the
 #intervals, this allows us to tell which intervals are only present in certain sample conditions
