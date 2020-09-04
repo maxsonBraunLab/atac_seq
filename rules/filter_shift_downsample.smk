@@ -15,9 +15,8 @@ rule makeBigwig:
         """--- making bigwig---"""
     shell:
         """
-        bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15  
         bamCoverage --bam {input.quality} -o {output.bigwig_rough} --numberOfProcessors {threads} --skipNAs --binSize 5 
-
+        bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15  
         """
 #rule bamcoverage bedtools multicov [OPTIONS] -bams BAM1 BAM2 BAM3 ... BAMn -bed  <BED/GFF/VCF>
 
@@ -47,6 +46,7 @@ rule downSample:
         sambamba sort -t {threads} {input.bamfile} -o {output.input_sort}
         sambamba index -t {threads} {output.input_sort} {output.input_index}
         export PATH=$PATH:/opt/installed/samtools-1.6/bin/
+        #if [[ $(grep {wildcards.merged_sample} {input.downsample_list}) ]]; then sambamba view --subsample=0.$(grep {wildcards.merged_sample} {input.downsample_list}| awk '{{print $2}}') --subsampling-seed=2 {output.input_sort} -o {output.bamfile}; else cp {output.input_sort} {output.bamfile}; fi
         if [[ $(grep {wildcards.merged_sample} {input.downsample_list}) ]]; then samtools view -@ 4 -b -h -s 1.$(grep {wildcards.merged_sample} {input.downsample_list}| awk '{{print $2}}') {output.input_sort} -o {output.bamfile}; else cp {output.input_sort} {output.bamfile}; fi 
         sambamba index -t {threads} {output.bamfile} {output.index}
         """
@@ -126,6 +126,7 @@ rule samtoolsQuality:
      input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup.bam",
      output:
+        #TODO add in temp()
         quality = temp(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality.bam"),
      params:
         readsfile = sample_work_path + "/fully_filtered/{merged_sample}_read_depths.csv"
@@ -148,6 +149,7 @@ rule dedup:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM.bam",
     output:
+        #TODO add in temp()
         deduplicated = temp(sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup.bam"),
     params:
         readsfile = sample_work_path + "/fully_filtered/{merged_sample}_read_depths.csv",
@@ -169,6 +171,7 @@ rule removeMitochondrial:
     input:
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_sorted.bam", #change this to _merged if merging lanes
     output:
+        #TODO add in temp()
         bamfile = temp(sample_work_path + "/bamfiles/{merged_sample}_rmChrM.bam"),
         readsfile = sample_work_path + "/fully_filtered/{merged_sample}_read_depths.csv"
     conda:

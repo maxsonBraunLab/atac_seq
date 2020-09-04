@@ -1,9 +1,9 @@
 #This rule merges all of the catalog counts from the individual samples into one catalog for all of the samples
 rule merge_catalog_counts_no_downsmpl:
     input:
-        read_count = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts_ondownsamplepeaks.bed", merged_sample=MERGED_SAMPLES),
+        read_count = expand(sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed", merged_sample=MERGED_SAMPLES),
     output:
-        read_count = sample_work_path + "/fully_filtered/all_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
+        read_count = sample_work_path + "/fully_filtered/all_read_catalog_nodownsample_counts.bed",
     run:
         import pandas as pd
         dataframes = []
@@ -20,10 +20,10 @@ rule merge_catalog_counts_no_downsmpl:
 #This allows us to include low count samples
 rule peak_catalog_counts_no_downsmpl:
     input:
-        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals.bed",
+        read_catalog = sample_work_path + "/bamfiles/reads_catalog_intervals_nodownsample.bed",
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads.bam",
     output:
-        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts_ondownsamplepeaks.bed",
+        read_count = sample_work_path + "/fully_filtered/{merged_sample}_read_catalog_nodownsample_counts.bed",
         bamfile = sample_work_path + "/bamfiles/{merged_sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam",
     params:
         header = '\t'.join(["Chr","start","stop","V4","V5","V6"]) + '\t' + "{merged_sample}",
