@@ -73,6 +73,7 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 * Quality Control
   * Fragment length distribution plot
   * PCA of all replicates
+* Quality Table of number of reads after removing mito, duplicates, poorly mapping
 * Counts table of peaks
   * Pre and post-downsampling to sample with the lowest coverage 
 * Fraction of Reads in Peaks (FRIP) per sample
