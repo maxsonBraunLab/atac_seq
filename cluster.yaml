@@ -1,0 +1,11 @@
+---
+__default__:
+  t: '06:00:00'
+  N: 1
+  partition: exacloud
+  J: "{rule}.{wildcards.sample}"
+  c: 4
+  mem: 8G
+align:
+  c: 16
+  mem: 32G

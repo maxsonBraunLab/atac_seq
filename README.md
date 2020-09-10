@@ -81,9 +81,11 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 * Read pileup tracks in bigwig format
 * Differentially open chromatin regions
 * Transcription factor footprint analysis
-  * TF's that have differential chromatin openness between conditions
+  * List of TF's that show differential chromatin openness at binding sites between conditions.
   * Tracks that show potential binding motif sites of TF's.
+  * Whether potential binding motif sites are found in ChIP-Atlas.
 
+## 
 ## Methods
 
 Insert rulegraph here.
