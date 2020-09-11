@@ -9,9 +9,6 @@ import plotly as plt
 
 configfile: "config.yaml"
 
-include: "rules/quality_and_align.smk"
-include: "rules/filter_shift_downsample.smk"
-
 SAMPLE, dir = glob_wildcards("samples/raw/{sample}_{dir,R1|R2}.fastq.gz")
 SAMPLE = sorted(set(SAMPLE))
 # sample will glob cond+replicate information like 'MOLM24D1' but not R1 or R2.
@@ -29,3 +26,8 @@ rule all:
 		# trim, align reads, get fragment length distribution
 		expand("samples/align/sorted/{sample}_sorted.bam", sample = SAMPLE),
 		"samples/align/fragment_length/fragment_length_dist.html"
+
+
+include: "rules/quality_and_align.smk"
+include: "rules/filter_shift_downsample.smk"
+

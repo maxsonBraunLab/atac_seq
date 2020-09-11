@@ -1,6 +1,3 @@
-SAMPLE, dir = glob_wildcards("samples/raw/{sample}_{dir,R1|R2}.fastq.gz")
-SAMPLE = sorted(set(SAMPLE))
-
 rule trimming:
 	input:
 		forward_strand = "samples/raw/{sample}_R1.fastq.gz",
