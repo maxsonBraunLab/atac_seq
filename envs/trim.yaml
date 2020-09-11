@@ -1,0 +1,7 @@
+name: trim
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - trimmomatic=0.38

@@ -4,8 +4,10 @@ __default__:
   N: 1
   partition: exacloud
   J: "{rule}.{wildcards.sample}"
-  c: 4
-  mem: 8G
+  o: "logs/{rule}/{wildcards.sample}.out"
+  e: "logs/{rule}/{wildcards.sample}.err"
+  c: 8
+  mem: 4G
 align:
   c: 16
   mem: 32G

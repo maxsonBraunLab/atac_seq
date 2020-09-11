@@ -1,0 +1,25 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	trimming
+	1
+
+[Thu Sep 10 15:41:37 2020]
+Job 0: --- Trimming ---
+
+Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/78dcc6b8
+TrimmomaticPE: Started with arguments:
+ -threads 8 samples/raw/MOLM24C_2_R1.fastq.gz samples/raw/MOLM24C_2_R2.fastq.gz samples/trim/MOLM24C_2_R1_fastqc_tpaired.fastq.gz samples/trim/MOLM24C_2_R1_fastqc_tunpaired.fastq.gz samples/trim/MOLM24C_2_R2_fastqc_tpaired.fastq.gz samples/trim/MOLM24C_2_R2_fastqc_tunpaired.fastq.gz ILLUMINACLIP:/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30
+Using Long Clipping Sequence: 'TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG'
+Using Medium Clipping Sequence: 'CTGTCTCTTATACACATCT'
+Using Long Clipping Sequence: 'GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG'
+ILLUMINACLIP: Using 0 prefix pairs, 3 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Quality encoding detected as phred33
+Input Read Pairs: 22391414 Both Surviving: 20251632 (90.44%) Forward Only Surviving: 1782537 (7.96%) Reverse Only Surviving: 246312 (1.10%) Dropped: 110933 (0.50%)
+TrimmomaticPE: Completed successfully
+[Thu Sep 10 15:52:43 2020]
+Finished job 0.
+1 of 1 steps (100%) done

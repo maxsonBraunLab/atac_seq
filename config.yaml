@@ -1,12 +1,12 @@
 # Configuration file for ATAC-Seq
-#
-# # sequencing adapters to trim in fasta format.
-adapters_file: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta"
-#
-# # fasta file of genome for alignment.
-alignment_reference: "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta"
-#
-# # metadata file for group testing
-metadata_file: "MOLM_ATAC_metadata.txt"
-#
-# # given the assumption that users will symlink data into an analysis directory, the config file is now cleaner.
+
+# sequencing adapters to trim in fasta format.
+ADAPTERS: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta"
+
+# fasta file of genome for alignment.
+REFERENCE: "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta"
+
+# metadata file for group testing
+METADATA: "MOLM_ATAC_metadata.txt"
+
+# given the assumption that users will symlink data into an analysis directory, the config file is now cleaner.
