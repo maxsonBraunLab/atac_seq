@@ -88,7 +88,7 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 ## 
 ## Methods
 
-Insert rulegraph here.
+![](rulegraph.svg)
 
 # References
 
