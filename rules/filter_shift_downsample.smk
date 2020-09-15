@@ -148,7 +148,6 @@ rule dedup:
     input:
         bamfile = "samples/bamfiles/{sample}_rmChrM.bam",
     output:
-        #TODO add in temp()
         deduplicated = temp("samples/bamfiles/{sample}_rmChrM_dedup.bam"),
     params:
         readsfile = "samples/fully_filtered/{sample}_read_depths.csv",
@@ -170,7 +169,6 @@ rule removeMitochondrial:
     input:
         bamfile = "samples/align/sorted/{sample}_sorted.bam", #change this to _merged if merging lanes
     output:
-        #TODO add in temp()
         bamfile = temp("samples/bamfiles/{sample}_rmChrM.bam"),
         readsfile = "samples/fully_filtered/{sample}_read_depths.csv"
     conda:

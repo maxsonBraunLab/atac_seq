@@ -3,10 +3,10 @@ rule trimming:
 		forward_strand = "samples/raw/{sample}_R1.fastq.gz",
 		reverse_strand = "samples/raw/{sample}_R2.fastq.gz"
 	output:
-		forward_paired = "samples/trim/{sample}_R1_fastqc_tpaired.fastq.gz",
-		reverse_paired = "samples/trim/{sample}_R2_fastqc_tpaired.fastq.gz",
-		forward_unpaired = "samples/trim/{sample}_R1_fastqc_tunpaired.fastq.gz",
-		reverse_unpaired = "samples/trim/{sample}_R2_fastqc_tunpaired.fastq.gz",
+		forward_paired = "samples/trim/{sample}_R1_paired.fastq.gz",
+		reverse_paired = "samples/trim/{sample}_R2_paired.fastq.gz",
+		forward_unpaired = "samples/trim/{sample}_R1_unpaired.fastq.gz",
+		reverse_unpaired = "samples/trim/{sample}_R2_unpaired.fastq.gz"
 	params:
 		adapter = config["ADAPTERS"]
 	conda:
@@ -52,7 +52,7 @@ rule sortbam:
 
 # qc metrics -------------------------------------------------------------------
 
-# QC metrics: fragment length distribution, read mapping proportion per chromosome
+# fragment length distribution
 rule fragment_length:
 	input:
 		rules.sortbam.output
@@ -87,3 +87,43 @@ rule fragment_length_plot:
 			legend_title_text='Samples')
 		fragment_length_dist.write_html(str(output))
 # read in info as list of df. Concat everything into one df (row = length, col = sample, elements = counts of frag length), plot and label with plotly. 
+
+# check fastq metrics post-trim
+rule fastqc:
+	input:
+		r1 = rules.trimming.output.forward_paired,
+		r2 = rules.trimming.output.reverse_paired
+	output:
+		"samples/fastqc/{sample}_R1_paired_fastqc.html",
+		"samples/fastqc/{sample}_R1_paired_fastqc.zip",
+		"samples/fastqc/{sample}_R2_paired_fastqc.html",
+		"samples/fastqc/{sample}_R2_paired_fastqc.zip"
+	conda:
+		"../envs/fastqc.yaml"
+	threads: 4
+	message: " --- FASTQC'ing {wildcards.sample} ---"
+	shell:
+		"fastqc --outdir samples/fastqc --threads {threads} -f fastq {input.r1} {input.r2}"
+
+# check contamination
+rule fastq_screen:
+	input:
+		r1 = rules.trimming.output.forward_paired,
+		r2 = rules.trimming.output.reverse_paired
+	output:
+		"samples/fastq_screen/{sample}/{sample}_R1_paired_screen.txt",
+		"samples/fastq_screen/{sample}/{sample}_R1_paired_screen.png",
+		"samples/fastq_screen/{sample}/{sample}_R1_paired_screen.html",
+		"samples/fastq_screen/{sample}/{sample}_R2_paired_screen.txt",
+		"samples/fastq_screen/{sample}/{sample}_R2_paired_screen.png",
+		"samples/fastq_screen/{sample}/{sample}_R2_paired_screen.html"
+	params:
+		conf = config["FASTQ_SCREEN_CONF"],
+		outdir = "samples/fastq_screen/{sample}"
+	conda:
+		"../envs/fastq_screen.yaml"
+	message: " -- Screening {wildcards.sample} --"
+	log: "logs/fastq_screen/{sample}.log"
+	threads: 16
+	shell:
+		"fastq_screen --aligner bowtie2 --threads {threads} --conf {params.conf} --outdir {params.outdir} {input.r1} {input.r2}"
