@@ -11,3 +11,15 @@ __default__:
 align:
   c: 16
   mem: 32G
+sortbam:
+  J: "sortbam.{wildcards.sample}"
+  o: "logs/sortbam/{wildcards.sample}.out"
+  e: "logs/sortbam/{wildcards.sample}.err"
+fastqc:
+  J: "fastqc.{wildcards.sample}"
+  o: "logs/fastqc/{wildcards.sample}.out"
+  e: "logs/fastqc/{wildcards.sample}.err"
+fastqc_screen:
+  J: "scrn.{wildcards.sample}"
+  o: "logs/fastq_screen/{wildcards.sample}.out"
+  e: "logs/fastq_screen/{wildcards.sample}.err"
