@@ -1,0 +1,39 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	fastq_screen
+	1
+
+[Mon Sep 14 15:43:33 2020]
+Job 0:  -- Screening MOLM24C_1 --
+
+Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/ec9562cf
+Using fastq_screen v0.13.0
+Reading configuration from 'config/fastq_screen.conf'
+Adding database hg38
+Adding database mm10
+Adding database mycoplasma
+Adding database ecoli
+Using 16 threads for searches
+Option --subset set to 100000 reads
+Processing MOLM24C_1_R1_paired.fastq.gz
+Counting sequences in MOLM24C_1_R1_paired.fastq.gz
+Making reduced sequence file with ratio 249:1
+Searching MOLM24C_1_R1_paired.fastq.gz_temp_subset.fastq against hg38
+Searching MOLM24C_1_R1_paired.fastq.gz_temp_subset.fastq against mm10
+Searching MOLM24C_1_R1_paired.fastq.gz_temp_subset.fastq against mycoplasma
+Searching MOLM24C_1_R1_paired.fastq.gz_temp_subset.fastq against ecoli
+Processing MOLM24C_1_R2_paired.fastq.gz
+Counting sequences in MOLM24C_1_R2_paired.fastq.gz
+Making reduced sequence file with ratio 249:1
+Searching MOLM24C_1_R2_paired.fastq.gz_temp_subset.fastq against hg38
+Searching MOLM24C_1_R2_paired.fastq.gz_temp_subset.fastq against mm10
+Searching MOLM24C_1_R2_paired.fastq.gz_temp_subset.fastq against mycoplasma
+Searching MOLM24C_1_R2_paired.fastq.gz_temp_subset.fastq against ecoli
+Processing complete
+[Mon Sep 14 15:47:21 2020]
+Finished job 0.
+1 of 1 steps (100%) done
