@@ -16,8 +16,6 @@ rule makeBigwig:
 		bamCoverage --bam {input.quality} -o {output.bigwig_rough} --numberOfProcessors {threads} --skipNAs --binSize 5 
 		bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15  
 		"""
-#rule bamcoverage bedtools multicov [OPTIONS] -bams BAM1 BAM2 BAM3 ... BAMn -bed  <BED/GFF/VCF>
-
 
 #This rule downsapmles the bam files by taking an amount to downsample a file from the file downsample.list
 #Then this command uses the tool samtools -s to downsample the file to the correct percentage
@@ -122,7 +120,6 @@ rule samtoolsQuality:
 	input:
 		bamfile = "samples/bamfiles/{sample}_rmChrM_dedup.bam"
 	output:
-		#TODO add in temp()
 		quality = temp("samples/bamfiles/{sample}_rmChrM_dedup_quality.bam"),
 	params:
 		readsfile = "samples/sample_stats/{sample}_read_depths.csv"
