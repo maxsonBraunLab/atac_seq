@@ -18,9 +18,13 @@ for i in SAMPLE:
 	print("--- samples to process: {}".format(i))
 # Comment out this if making dag or rulegraph.
 
-# snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.N} -o {cluster.o} -e {cluster.e} -t {cluster.t} -J {cluster.J} -c {threads} --mem={cluster.mem}" -s Snakefile
+# snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --keep-going --profile slurm --cluster-config cluster.yaml # run this with profile
 
-localrules: fragment_length_plot
+# to use the profiles, copy 'slurm' folder into ~/.config/snakemake.
+
+# snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --keep-going --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.nodes} -o {cluster.output} -e {cluster.error} -t {cluster.time} -J {cluster.job-name} -c {threads} --mem={cluster.mem}" -s Snakefile
+
+localrules: fragment_length_plot, createDownsample
 
 rule all:
 	input:
@@ -32,9 +36,9 @@ rule all:
 			sample = SAMPLE, dir = DIR, ext = ["html", "zip"]),
 		expand("samples/fastq_screen/{sample}/{sample}_{dir}_paired_screen.{ext}", 
 			sample = SAMPLE, dir = DIR, ext = ["png", "txt", "html"]),
-        #filtered bamfiles 
-        expand("samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", sample = SAMPLE),
-
+		# filtered bamfiles, bigwigs
+		expand("samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", sample = SAMPLE),
+		expand("data/bigwigs/{sample}_tracks_5window_{type}.bw", sample = SAMPLE, type = ['smooth', 'rough'])
 
 include: "rules/quality_and_align.smk"
 include: "rules/filter_shift_downsample.smk"

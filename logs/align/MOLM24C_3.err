@@ -7,7 +7,7 @@ Job counts:
 	1	align
 	1
 
-[Thu Sep 10 15:57:26 2020]
+[Tue Sep 15 15:26:51 2020]
 Job 0: --- Aligning reads to reference.
 
 Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/714e46c9
@@ -38,7 +38,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1773050 reads in 568.441 CPU sec, 40.949 real sec
+[M::mem_process_seqs] Processed 1773050 reads in 564.403 CPU sec, 42.180 real sec
 [M::process] read 1776504 sequences (160000114 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (146, 593093, 687, 73)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -64,7 +64,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1775334 reads in 561.638 CPU sec, 36.637 real sec
+[M::mem_process_seqs] Processed 1775334 reads in 555.373 CPU sec, 36.289 real sec
 [M::process] read 1775288 sequences (160000198 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (153, 595167, 676, 55)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -90,7 +90,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1776504 reads in 552.332 CPU sec, 36.376 real sec
+[M::mem_process_seqs] Processed 1776504 reads in 550.483 CPU sec, 36.023 real sec
 [M::process] read 1774858 sequences (160000145 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (41, 600577, 629, 20)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -116,8 +116,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1775288 reads in 535.870 CPU sec, 35.009 real sec
-[M::process] read 1774096 sequences (160000042 bp)...
+[M::mem_process_seqs] Processed 1775288 reads in 531.178 CPU sec, 34.632 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (36, 601508, 641, 36)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (115, 192, 432)
@@ -142,7 +141,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1774858 reads in 534.627 CPU sec, 34.806 real sec
+[M::process] read 1774096 sequences (160000042 bp)...
+[M::mem_process_seqs] Processed 1774858 reads in 535.284 CPU sec, 34.773 real sec
 [M::process] read 1776944 sequences (160000064 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (45, 600286, 626, 26)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -168,8 +168,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1774096 reads in 528.444 CPU sec, 34.555 real sec
-[M::process] read 1777266 sequences (160000194 bp)...
+[M::mem_process_seqs] Processed 1774096 reads in 528.502 CPU sec, 34.748 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (50, 599026, 607, 31)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (87, 199, 430)
@@ -194,7 +193,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1776944 reads in 537.613 CPU sec, 34.929 real sec
+[M::process] read 1777266 sequences (160000194 bp)...
+[M::mem_process_seqs] Processed 1776944 reads in 534.994 CPU sec, 34.866 real sec
 [M::process] read 1772476 sequences (160000189 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (42, 599549, 611, 24)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -220,7 +220,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1777266 reads in 544.982 CPU sec, 35.656 real sec
+[M::mem_process_seqs] Processed 1777266 reads in 538.731 CPU sec, 35.177 real sec
 [M::process] read 1775020 sequences (160000020 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (79, 595635, 616, 41)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -246,7 +246,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1772476 reads in 526.956 CPU sec, 34.362 real sec
+[M::mem_process_seqs] Processed 1772476 reads in 516.127 CPU sec, 33.824 real sec
 [M::process] read 1776574 sequences (160000166 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (155, 592305, 687, 90)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -272,7 +272,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1775020 reads in 556.729 CPU sec, 36.237 real sec
+[M::mem_process_seqs] Processed 1775020 reads in 538.776 CPU sec, 35.115 real sec
 [M::process] read 1776050 sequences (160000041 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (169, 594788, 701, 62)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -298,8 +298,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1776574 reads in 556.717 CPU sec, 36.422 real sec
-[M::process] read 1778956 sequences (160000132 bp)...
+[M::mem_process_seqs] Processed 1776574 reads in 549.100 CPU sec, 35.767 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (128, 599127, 678, 53)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (107, 232, 367)
@@ -324,7 +323,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1776050 reads in 545.783 CPU sec, 35.467 real sec
+[M::process] read 1778956 sequences (160000132 bp)...
+[M::mem_process_seqs] Processed 1776050 reads in 536.358 CPU sec, 34.914 real sec
 [M::process] read 1777276 sequences (160000095 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (73, 600500, 604, 42)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -350,7 +350,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1778956 reads in 547.028 CPU sec, 35.756 real sec
+[M::mem_process_seqs] Processed 1778956 reads in 537.069 CPU sec, 35.067 real sec
 [M::process] read 1775874 sequences (160000011 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (74, 600878, 623, 39)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -376,7 +376,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1777276 reads in 537.695 CPU sec, 35.259 real sec
+[M::mem_process_seqs] Processed 1777276 reads in 538.532 CPU sec, 35.249 real sec
 [M::process] read 1782220 sequences (160000057 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (51, 601767, 599, 31)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -402,7 +402,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1775874 reads in 532.455 CPU sec, 34.624 real sec
+[M::mem_process_seqs] Processed 1775874 reads in 531.973 CPU sec, 34.612 real sec
 [M::process] read 1778176 sequences (160000071 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (45, 603559, 631, 27)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -428,7 +428,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1782220 reads in 544.557 CPU sec, 35.592 real sec
+[M::mem_process_seqs] Processed 1782220 reads in 542.039 CPU sec, 35.352 real sec
 [M::process] read 1770190 sequences (160000172 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (46, 601575, 625, 30)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -454,8 +454,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1778176 reads in 553.166 CPU sec, 36.377 real sec
-[M::process] read 1776350 sequences (160000112 bp)...
+[M::mem_process_seqs] Processed 1778176 reads in 557.817 CPU sec, 36.503 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (90, 598616, 662, 38)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (58, 191, 335)
@@ -480,7 +479,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1770190 reads in 528.501 CPU sec, 34.513 real sec
+[M::process] read 1776350 sequences (160000112 bp)...
+[M::mem_process_seqs] Processed 1770190 reads in 526.848 CPU sec, 34.261 real sec
 [M::process] read 1777152 sequences (160000160 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (141, 596234, 657, 80)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -506,7 +506,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1776350 reads in 545.955 CPU sec, 35.557 real sec
+[M::mem_process_seqs] Processed 1776350 reads in 546.007 CPU sec, 35.815 real sec
 [M::process] read 1798832 sequences (160000168 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (163, 597207, 675, 93)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -532,8 +532,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1777152 reads in 554.875 CPU sec, 36.038 real sec
-[M::process] read 1825160 sequences (160000075 bp)...
+[M::mem_process_seqs] Processed 1777152 reads in 551.987 CPU sec, 35.903 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (166, 596433, 592, 83)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (91, 201, 421)
@@ -558,7 +557,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1798832 reads in 558.122 CPU sec, 36.475 real sec
+[M::process] read 1825160 sequences (160000075 bp)...
+[M::mem_process_seqs] Processed 1798832 reads in 564.760 CPU sec, 36.861 real sec
 [M::process] read 1816866 sequences (160000044 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (214, 591845, 589, 104)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -584,7 +584,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1825160 reads in 589.612 CPU sec, 38.449 real sec
+[M::mem_process_seqs] Processed 1825160 reads in 577.570 CPU sec, 37.740 real sec
 [M::process] read 1793326 sequences (160000142 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (207, 599826, 570, 99)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -610,8 +610,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1816866 reads in 573.106 CPU sec, 37.515 real sec
-[M::process] read 1777512 sequences (160000106 bp)...
+[M::mem_process_seqs] Processed 1816866 reads in 577.951 CPU sec, 37.930 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (95, 598383, 603, 54)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (99, 232, 543)
@@ -636,8 +635,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1793326 reads in 571.299 CPU sec, 37.357 real sec
-[M::process] read 1779054 sequences (160000028 bp)...
+[M::process] read 1777512 sequences (160000106 bp)...
+[M::mem_process_seqs] Processed 1793326 reads in 561.626 CPU sec, 36.426 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (44, 597372, 654, 33)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (142, 324, 621)
@@ -662,7 +661,8 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1777512 reads in 560.005 CPU sec, 36.509 real sec
+[M::process] read 1779054 sequences (160000028 bp)...
+[M::mem_process_seqs] Processed 1777512 reads in 555.385 CPU sec, 36.372 real sec
 [M::process] read 1783880 sequences (160000151 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (73, 597149, 618, 38)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -688,7 +688,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1779054 reads in 564.608 CPU sec, 36.967 real sec
+[M::mem_process_seqs] Processed 1779054 reads in 562.660 CPU sec, 37.022 real sec
 [M::process] read 1779094 sequences (160000068 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (58, 599840, 647, 37)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -714,7 +714,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1783880 reads in 581.629 CPU sec, 37.982 real sec
+[M::mem_process_seqs] Processed 1783880 reads in 638.242 CPU sec, 41.529 real sec
 [M::process] read 1784282 sequences (160000163 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (52, 600192, 586, 29)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -740,7 +740,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1779094 reads in 555.317 CPU sec, 36.328 real sec
+[M::mem_process_seqs] Processed 1779094 reads in 613.952 CPU sec, 40.496 real sec
 [M::process] read 1786758 sequences (160000130 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (52, 598685, 654, 46)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -766,7 +766,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1784282 reads in 556.944 CPU sec, 36.322 real sec
+[M::mem_process_seqs] Processed 1784282 reads in 616.844 CPU sec, 40.302 real sec
 [M::process] read 1789468 sequences (160000153 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (80, 601496, 591, 58)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -792,7 +792,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1786758 reads in 579.320 CPU sec, 37.664 real sec
+[M::mem_process_seqs] Processed 1786758 reads in 626.630 CPU sec, 41.055 real sec
 [M::process] read 1032830 sequences (92377367 bp)...
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (51, 601968, 628, 47)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
@@ -818,7 +818,7 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1789468 reads in 573.621 CPU sec, 37.328 real sec
+[M::mem_process_seqs] Processed 1789468 reads in 634.993 CPU sec, 41.458 real sec
 [M::mem_pestat] # candidate unique pairs for (FF, FR, RF, RR): (39, 345323, 340, 30)
 [M::mem_pestat] analyzing insert size distribution for orientation FF...
 [M::mem_pestat] (25, 50, 75) percentile: (143, 296, 1422)
@@ -843,10 +843,10 @@ Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/
 [M::mem_pestat] skip orientation FF
 [M::mem_pestat] skip orientation RF
 [M::mem_pestat] skip orientation RR
-[M::mem_process_seqs] Processed 1032830 reads in 350.610 CPU sec, 23.963 real sec
+[M::mem_process_seqs] Processed 1032830 reads in 380.258 CPU sec, 25.473 real sec
 [main] Version: 0.7.17-r1188
-[main] CMD: bwa mem -t 16 /home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta samples/trim/MOLM24C_3_R1_fastqc_tpaired.fastq.gz samples/trim/MOLM24C_3_R2_fastqc_tpaired.fastq.gz
-[main] Real time: 1183.795 sec; CPU: 17519.354 sec
-[Thu Sep 10 16:17:29 2020]
+[main] CMD: bwa mem -t 16 /home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta samples/trim/MOLM24C_3_R1_paired.fastq.gz samples/trim/MOLM24C_3_R2_paired.fastq.gz
+[main] Real time: 1203.971 sec; CPU: 17734.856 sec
+[Tue Sep 15 15:48:00 2020]
 Finished job 0.
 1 of 1 steps (100%) done

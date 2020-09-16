@@ -46,8 +46,7 @@ rule sortbam:
 	message:
 		"""--- sorting the bamfile ---"""
 	shell:
-		"""samtools sort -@ {threads} -o {output} {input}; samtools index {output} """
-
+		"samtools sort -@ {threads} -m '2G' {input} > {output}; samtools index -b {output}"
 # -m '2G' = require 2GB of memory to sort for performance gains.
 
 # qc metrics -------------------------------------------------------------------

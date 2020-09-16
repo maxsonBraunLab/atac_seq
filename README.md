@@ -85,10 +85,10 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
   * Tracks that show potential binding motif sites of TF's.
   * Whether potential binding motif sites are found in ChIP-Atlas.
 
-## 
 ## Methods
 
-![](rulegraph.svg)
+![](rulegraph.svg).
 
 # References
+
 
