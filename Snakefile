@@ -14,6 +14,7 @@ SAMPLE = sorted(set(SAMPLE))
 DIR = sorted(set(dir)) # R1, R2
 # sample will glob cond+replicate information like 'MOLM24D_1' but not R1 or R2.
 
+
 for i in SAMPLE:
 	print("--- samples to process: {}".format(i))
 # Comment out this if making dag or rulegraph.
@@ -38,7 +39,10 @@ rule all:
 			sample = SAMPLE, dir = DIR, ext = ["png", "txt", "html"]),
 		# filtered bamfiles, bigwigs
 		expand("samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads_downSample.bam", sample = SAMPLE),
-		expand("data/bigwigs/{sample}_tracks_5window_{type}.bw", sample = SAMPLE, type = ['smooth', 'rough'])
+		expand("data/bigwigs/{sample}_tracks_5window_{type}.bw", sample = SAMPLE, type = ['smooth', 'rough']),
+        read_count = expand("samples/fully_filtered/{sample}_read_catalog_nodownsample_counts.bed", sample=SAMPLE),
+
 
 include: "rules/quality_and_align.smk"
 include: "rules/filter_shift_downsample.smk"
+include: "rules/peak_catalog_no_downsample.smk"
