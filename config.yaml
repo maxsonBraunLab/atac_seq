@@ -13,3 +13,23 @@ METADATA: "MOLM_ATAC_metadata.txt"
 FASTQ_SCREEN_CONF: "config/fastq_screen.conf"
 
 # given the assumption that users will symlink data into an analysis directory, the config file is now cleaner.
+
+#the size of the genome to be used for genome size effect cancellatino
+#Below this line is the default size for mouse
+#macs_genome_size: "1.87e9" #mouse default size
+#And this is the size used for human genomes
+macs_genome_size: "2.7e9" #human default genome size
+
+#The location of the blacklist file that we will use to filter out regions that overlap a blacklist
+#below is the default blacklist for mouse genome mm10
+#blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
+#below this line is the default blacklist for human genome hg38
+blacklist_file: "/home/groups/MaxsonLab/indices/GRch38/hg38.blacklist.v2.bed"
+
+#the name of the genome that you are using for usage
+genome_name: "mm10"
+
+#The metadata file that has a mapping from sample name to condition
+metadata_file: "./metadata_file.tsv"
+
+
