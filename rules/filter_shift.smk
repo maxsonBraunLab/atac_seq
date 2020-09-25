@@ -1,3 +1,30 @@
+rule makeBigwig:
+	input:
+		quality = "samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam"
+	output:
+		bigwig = "data/bigwigs/{sample}_tracks.bw",
+	conda:
+		"../envs/deeptools.yaml"
+	threads: 16
+	message:
+		"""--- making bigwig---"""
+	shell:
+		"""
+		bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15
+		"""
+# one bigwig track
+
+rule sortbam2:
+	input:
+		"samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads.bam"
+	output:
+		"samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam"
+	conda:
+		"../envs/bwa.yaml"
+	threads: 4
+	shell:
+		"samtools sort -@ {threads} -m '2G' {input} > {output}; samtools index -b {output}"
+
 #ATAC sequencing involves a transposase that slightly shifts the reads when 
 #it is used. In order to correct this we need to 5, 4 offset the reads so that they line up with the actual accessibility locations
 rule shiftReads:
@@ -20,11 +47,9 @@ rule shiftReads:
 #eventually be pulled together into the command that needs this index which is hte shifting rule  above
 rule index:
 	input:
-		deduplicated = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam",
-		full_bam = "samples/align/sorted/{sample}_sorted.bam",
+		deduplicated = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam"
 	output:
-		indexed = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam.bai",
-		indexed_full = "samples/bamfiles/{sample}_sorted.bam.bai",
+		indexed = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam.bai"
 	conda:
 		"../envs/sambamba.yaml"
 	threads: 4 
@@ -32,7 +57,6 @@ rule index:
 		"""--- indexing reads---"""
 	shell:
 		"""
-		sambamba index -t {threads} {input.full_bam} {output.indexed_full}
 		sambamba index -t {threads} {input.deduplicated} {output.indexed}
 		
 		"""
@@ -100,3 +124,4 @@ rule removeMitochondrial:
 		samtools view -h -@ {threads} {input.bamfile}| grep -v chrM| samtools sort -@ {threads} -O BAM > {output.bamfile}
 		samtools view -@ {threads} -c {output.bamfile}| xargs -I{{}} echo "{wildcards.sample},no_ChrM,"{{}}$'\n' >> {output.readsfile}
 		"""
+

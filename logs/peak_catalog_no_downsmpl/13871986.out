@@ -1,0 +1,71 @@
+[1] "c(NA, NA, NA, NA, NA, NA, NA, NA, NA)"
+[1] NA
+[1] MOLM24D_1 MOLM24D_2 MOLM24D_3 MOLM24C_1 MOLM24C_2 MOLM24C_3 MOLM24X_1
+[8] MOLM24X_2 MOLM24X_3
+9 Levels: MOLM24C_1 MOLM24C_2 MOLM24C_3 MOLM24D_1 MOLM24D_2 ... MOLM24X_3
+[1] "DMSO"     "GSK_QUIZ" "ORY_QUIZ"
+[1] "now for the names of the peaks list"
+[1] "c(NA, NA, NA, NA, NA, NA, NA, NA, NA)"
+[1] "c(NA, NA, NA, NA, NA, NA, NA, NA, NA)"
+GRangesList object of length 1:
+$c(NA, NA, NA, NA, NA, NA, NA, NA, NA) 
+GRanges object with 272318 ranges and 7 metadata columns:
+           seqnames            ranges strand |        name     score no_strand
+              <Rle>         <IRanges>  <Rle> | <character> <integer>  <factor>
+       [1]     chr1       10007-10450      * |        <NA>       328         .
+       [2]     chr1       96439-96721      * |        <NA>        38         .
+       [3]     chr1     180746-181846      * |        <NA>       111         .
+       [4]     chr1     199643-200272      * |        <NA>        79         .
+       [5]     chr1     273052-273474      * |        <NA>        26         .
+       ...      ...               ...    ... .         ...       ...       ...
+  [272314]     chrY 56765248-56765453      * |        <NA>        71         .
+  [272315]     chrY 56767173-56767484      * |        <NA>       165         .
+  [272316]     chrY 56768513-56769819      * |        <NA>        76         .
+  [272317]     chrY 56838861-56839062      * |        <NA>       119         .
+  [272318]     chrY 56869843-56870156      * |        <NA>        17         .
+           signalValue    pValue    qvalue
+             <numeric> <numeric> <numeric>
+       [1]     8.34027    36.504   32.8344
+       [2]     4.47993   6.58856    3.8305
+       [3]     5.61135    14.244   11.1573
+       [4]     5.65329   10.8411   7.93517
+       [5]     3.76326   5.32473   2.66853
+       ...         ...       ...       ...
+  [272314]     2.13742   10.0324   7.16783
+  [272315]     2.81533   19.6827    16.509
+  [272316]     2.35756   10.4638   7.61354
+  [272317]     3.63925   14.9399   11.9162
+  [272318]     3.03102    4.3326    1.7879
+                                       treatment
+                                     <character>
+       [1] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+       [2] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+       [3] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+       [4] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+       [5] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+       ...                                   ...
+  [272314] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+  [272315] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+  [272316] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+  [272317] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+  [272318] c(NA, NA, NA, NA, NA, NA, NA, NA, NA)
+
+-------
+seqinfo: 108 sequences from hg38 genome; no seqlengths
+[1] "c(NA, NA, NA, NA, NA, NA, NA, NA, NA)"
+GRanges object with 39572 ranges and 1 metadata column:
+          seqnames            ranges strand |                 name
+             <Rle>         <IRanges>  <Rle> |          <character>
+      [1]     chr1     817276-817692      * |     consensus_peak_1
+      [2]     chr1     827284-828008      * |     consensus_peak_2
+      [3]     chr1     869837-870133      * |     consensus_peak_3
+      [4]     chr1     878051-878128      * |     consensus_peak_4
+      [5]     chr1     906729-907328      * |     consensus_peak_5
+      ...      ...               ...    ... .                  ...
+  [39568]     chrY 22963222-22963444      * | consensus_peak_39568
+  [39569]     chrY 24595510-24595688      * | consensus_peak_39569
+  [39570]     chrY 24596938-24597195      * | consensus_peak_39570
+  [39571]     chrY 25072909-25073125      * | consensus_peak_39571
+  [39572]     chrY 25074403-25074567      * | consensus_peak_39572
+  -------
+  seqinfo: 108 sequences from an unspecified genome; no seqlengths

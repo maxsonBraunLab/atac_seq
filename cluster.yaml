@@ -27,3 +27,13 @@ removeMitochondrial:
   job-name: "mto.{wildcards.sample}"
   output: "logs/removeMitochondrial/{wildcards.sample}.out"
   error: "logs/removeMitochondrial/{wildcards.sample}.err"
+peak_catalog_no_downsmpl:
+  job-name: "pk_cat"
+  output: "logs/{rule}/%j.out"
+  error: "logs/{rule}/%j.err"
+makeBigwig:
+  cpus-per-task: 16
+merge_catalog_counts_no_downsmpl:
+  job-name: "{rule}"
+  output: "logs/{rule}/%j.out"
+  error: "logs/{rule}/%j.err"

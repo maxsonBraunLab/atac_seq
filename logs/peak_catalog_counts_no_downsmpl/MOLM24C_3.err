@@ -1,0 +1,31 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 8
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	peak_catalog_counts_no_downsmpl
+	1
+
+[Thu Sep 24 18:36:47 2020]
+rule peak_catalog_counts_no_downsmpl:
+    input: samples/macs/reads_catalog_intervals_nodownsample.bed, samples/bamfiles/filtered/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam
+    output: samples/macs/counts/MOLM24C_3_read_catalog_nodownsample_counts.bed, samples/macs/bam/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam
+    jobid: 0
+    wildcards: sample=MOLM24C_3
+    threads: 8
+
+
+        export PATH=$PATH:/opt/installed/samtools-1.6/bin/
+        samtools sort -@ 4 samples/bamfiles/filtered/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam > samples/macs/bam/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam
+        samtools index samples/macs/bam/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam
+         
+        bedtools multicov -bams samples/macs/bam/MOLM24C_3_rmChrM_dedup_quality_shiftedReads_sorted.bam -bed samples/macs/reads_catalog_intervals_nodownsample.bed >> samples/macs/counts/MOLM24C_3_read_catalog_nodownsample_counts.bed
+        sed -i "1i Chr	start	stop	V4	V5	V6	MOLM24C_3" samples/macs/counts/MOLM24C_3_read_catalog_nodownsample_counts.bed
+       
+        
+Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/4ce8de56
+[bam_sort_core] merging from 0 files and 4 in-memory blocks...
+[Thu Sep 24 18:39:12 2020]
+Finished job 0.
+1 of 1 steps (100%) done

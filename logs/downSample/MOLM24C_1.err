@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	downSample
+	1
+
+[Wed Sep 16 10:47:16 2020]
+Job 0: ---normalizing reads---
+
+
+		sambamba sort -t 4 samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads.bam -o samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam
+		sambamba index -t 4 samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam.bai
+		export PATH=$PATH:/opt/installed/samtools-1.6/bin/
+		#if [[ $(grep MOLM24C_1 samples/bamfiles/downsample_list.txt) ]]; then sambamba view --subsample=0.$(grep MOLM24C_1 samples/bamfiles/downsample_list.txt| awk '{print $2}') --subsampling-seed=2 samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam -o samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam; else cp samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam; fi
+		if [[ $(grep MOLM24C_1 samples/bamfiles/downsample_list.txt) ]]; then samtools view -@ 4 -b -h -s 1.$(grep MOLM24C_1 samples/bamfiles/downsample_list.txt| awk '{print $2}') samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam -o samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam; else cp samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_sorted.bam samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam; fi 
+		sambamba index -t 4 samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam samples/bamfiles/MOLM24C_1_rmChrM_dedup_quality_shiftedReads_downSample.bam.bai
+		
+Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/75351f1c
+
+sambamba 0.6.8 by Artem Tarasov and Pjotr Prins (C) 2012-2018
+    LDC 1.11.0 / DMD v2.081.2 / LLVM6.0.1 / bootstrap LDC - the LLVM D compiler (0.17.6git-0156298)
+
+
+sambamba 0.6.8 by Artem Tarasov and Pjotr Prins (C) 2012-2018
+    LDC 1.11.0 / DMD v2.081.2 / LLVM6.0.1 / bootstrap LDC - the LLVM D compiler (0.17.6git-0156298)
+
+
+sambamba 0.6.8 by Artem Tarasov and Pjotr Prins (C) 2012-2018
+    LDC 1.11.0 / DMD v2.081.2 / LLVM6.0.1 / bootstrap LDC - the LLVM D compiler (0.17.6git-0156298)
+
+[Wed Sep 16 10:48:08 2020]
+Finished job 0.
+1 of 1 steps (100%) done

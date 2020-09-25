@@ -1,0 +1,21 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 32
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	samtoolsQuality
+	1
+
+[Wed Sep 16 10:35:32 2020]
+Job 0: --- deduplicating reads---
+
+
+		samtools view -h -@ 4 -b -F 1804 samples/bamfiles/MOLM24X_3_rmChrM_dedup.bam > samples/bamfiles/MOLM24X_3_rmChrM_dedup_quality.bam
+		samtools view -@ 4 -c samples/bamfiles/MOLM24X_3_rmChrM_dedup_quality.bam| xargs -I{} echo "MOLM24X_3,satisfy_quality,"{}$'
+'  >> samples/fully_filtered/MOLM24X_3_read_depths.csv
+		
+Activating conda environment: /home/groups/MaxsonLab/kongg/atac_seq2/.snakemake/conda/86fba6de
+[Wed Sep 16 10:37:11 2020]
+Finished job 0.
+1 of 1 steps (100%) done
