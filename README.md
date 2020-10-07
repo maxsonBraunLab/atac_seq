@@ -50,7 +50,7 @@ You can run the pipeline via batch mode like this:
 snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.N}  -t {cluster.t} -J {cluster.J} -c {cluster.c} --mem={cluster.mem}" -s Snakefile
 ```
 
-This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, footprinting, calculating differentially open chromatin regions).
+This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, calculating differentially open chromatin regions).
 
 
 
@@ -72,6 +72,7 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 
 * Quality Control
   * Fragment length distribution plot
+  * Fraction of Reads in Peaks (FRiP) per sample 
   * PCA of all replicates
 * Quality Table of number of reads after removing mito, duplicates, poorly mapping
 * Counts table of peaks
@@ -80,10 +81,7 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 * Consensus peaks among _n_ replicates (_n_ is configurable) 
 * Read pileup tracks in bigwig format
 * Differentially open chromatin regions
-* Transcription factor footprint analysis
-  * List of TF's that show differential chromatin openness at binding sites between conditions.
-  * Tracks that show potential binding motif sites of TF's.
-  * Whether potential binding motif sites are found in ChIP-Atlas.
+* Commonly used data (tracks, QC metrics, counts table) are in `data` directory.
 
 ## Methods
 
