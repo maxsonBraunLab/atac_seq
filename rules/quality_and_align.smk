@@ -14,7 +14,7 @@ rule trimming:
 	threads: 8
 	log: "logs/trimming/{sample}.log"
 	message:
-		"""--- Trimming ---"""
+		"""--- Trimming {wildcards.sample} ---"""
 	shell:
 		"""trimmomatic PE -threads {threads} {input.forward_strand} {input.reverse_strand} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{params.adapter}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30"""
 
@@ -30,7 +30,7 @@ rule align:
 		"../envs/bwa.yaml"
 	log: "logs/align/{sample}.log"
 	message:
-		"""--- Aligning reads to reference."""
+		"""--- Aligning {wildcards.sample} to reference."""
 	threads: 16
 	shell:
 		"""bwa mem -t {threads} {params.reference} {input.forward_paired} {input.reverse_paired} | samtools view -bS - > {output} """
@@ -44,7 +44,7 @@ rule sortbam:
 		"../envs/bwa.yaml"
 	threads: 4
 	message:
-		"""--- sorting the bamfile ---"""
+		"""--- sorting {wildcards.sample} ---"""
 	shell:
 		"samtools sort -@ {threads} -m '2G' {input} > {output}; samtools index -b {output}"
 # -m '2G' = require 2GB of memory to sort for performance gains.
@@ -63,16 +63,14 @@ rule fragment_length:
 	shell:
 		"samtools view {input} | cut -f9 | awk '$1 > 0 && $1 < 1000' | sort --parallel={threads} -S 50% | uniq -c | sort -b -k2,2n | sed -e 's/^[ \t]*//' > {output}"
 # output fragment length info per sample.
-# cut -f9 = fragment length in bam file
-# awk '$1 > 0' | sort | uniq -c = get positive fragment length, sort, count the lengths
-# sort -b -k2,2n = col1 is fragment size, col2 is counts. sort by counts numerically.
-# sed = remove tabs
+# cut -f9 = fragment length in bam file. awk '$1 > 0' | sort | uniq -c = get positive fragment length, sort, count the lengths. 
+# sort -b -k2,2n = col1 is fragment size, col2 is counts. sort by counts numerically. sed = remove tabs
 
 rule fragment_length_plot:
 	input:
 		expand("samples/align/fragment_length/{sample}.txt", sample = SAMPLE)
 	output:
-		"samples/align/fragment_length/fragment_length_dist.html"
+		"data/fragment_length_dist.html"
 	run:
 		pd.options.plotting.backend = "plotly"
 		df = pd.concat([pd.read_csv(f, index_col = 1, sep = " ", names = [f.split('/')[3][:-4]]) for f in input], axis = 1)

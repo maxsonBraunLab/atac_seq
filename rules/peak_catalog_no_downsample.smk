@@ -1,51 +1,39 @@
-# find total reads per sample
-rule frip_total_reads:
+rule frip_plot:
     input:
-        "samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam"
+        expand("samples/frip/{sample}_stats.txt", sample = SAMPLE)
     output:
-        "samples/frip/{sample}_reads.txt"
-    conda:
-        "../envs/frip.yaml"
-    shell:
-        "samtools view -c {input} > {output}"
+        "data/frip.html"
+    run:
+        pd.options.plotting.backend = "plotly"
+        # import data. row = total_reads, reads_in_peaks, and ratio. cols = samples. 
+        df = pd.concat([ pd.read_csv(i) for i in sorted(input) ], axis = 1)
+        df = df.rename(index={0: 'total_reads', 1: 'reads_in_peaks'})
+        df.loc['ratio'] = df.loc['reads_in_peaks'] / df.loc['total_reads']
+        # plot graph. plot ratio as bottom as percent, and plot to max value of 1.
+        fig = go.Figure(data=[
+            go.Bar(name='FRiP', x=df.columns, y=df.loc['ratio'], marker_color='rgb(255,201,57)'),
+            go.Bar(name='fraction_reads', x=df.columns, y= ([1] * df.shape[1]) - df.loc['ratio'], marker_color='rgb(0,39,118)')])
+        # Change the bar mode
+        fig.update_layout(barmode='stack', title='Fraction of Reads in Peaks by Sample', xaxis_tickfont_size=14,
+            yaxis=dict(title='Fraction of reads in peaks', titlefont_size=16, tickfont_size=14),
+            xaxis=dict(title='Samples'))
+        fig.write_html(str(output))
 
-# find reads in peaks. each peak regions belongs to the individual replicate. 
-rule frip_rip:
+rule frip_count:
     input:
-        bamfile = "samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam",
+        bamfile = "samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam",
         peaks = "samples/macs/{sample}_macsout_nodownsample/{sample}_macs_peaks.broadPeak"
     output:
-        "samples/frip/{sample}_rip.txt"
+        "samples/frip/{sample}_stats.txt"
     conda:
         "../envs/frip.yaml"
     shell:
-        "bedtools sort -i {input.peaks} | bedtools merge -i stdin | \
-        bedtools intersect -u -a {input.bamfile} -b stdin -ubam | \
-        samtools view -c > {output}"
-# sort input peaks per replicate, merge any overlapping peaks.
-# intersect bamfile and its peak regions. -u = write overlapping entries once, and -ubam outputs uncompressed bam for piping
-# view number of reads that fall in peaks intervals. 
-
-
-# calculate frip and visualize
-rule frip_viz:
-    input:
-        tot_reads = expand("samples/frip/{sample}_reads.txt", sample = SAMPLE),
-        reads_in_peaks = expand("samples/frip/{sample}_rip.txt", sample = SAMPLE)
-    output:
-        "data/frip/frip.png"
-    params: 
-        samp = "{sample}" # removes any trailing file name and only keeps sample name.
-    run:
-        # import total reads and rip. col = sample, row = counts.
-        total_reads = pd.concat([pd.read_csv(i, names = [ "_".join(i.split("_")[0:2]) ]) for i in input.tot_reads], axis = 1)
-        rip = pd.concat([pd.read_csv(i, names = [ "_".join(i.split("_")[0:2]) ]) for i in input.tot_reads], axis = 1)
-        # define index name.
-        total_reads.index.names = ['total_reads']
-        rip.index.names = ['rip']
-        # merge by samples total_reads and rip
-        # divide rip by total reads
-# names = split input by "_", keep first 2 items (sample and condition), merge by "_", put results as list for colname.
+        """
+        rip=$(bedtools sort -i {input.peaks} | bedtools merge -i stdin | bedtools intersect -u -a {input.bamfile} -b stdin -ubam | samtools view -c); \
+        counts=$(samtools view -c {input.bamfile}); \
+        echo -e "{wildcards.sample}\n$counts\n$rip" > {output}
+        """
+# source: yiwei niu
 
 #This rule merges all of the catalog counts from the individual samples into one catalog for all of the samples
 rule merge_catalog_counts_no_downsmpl:
@@ -128,7 +116,7 @@ rule MACS_no_downsmpl:
         "../envs/MACS.yaml"
     threads: 4
     params:
-        genome = config["macs_genome_size"],
+        genome = config["genome_size"],
         name = "{sample}_macs",
         directory = "samples/macs/{sample}_macsout_nodownsample"
     message:

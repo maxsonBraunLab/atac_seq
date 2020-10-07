@@ -25,6 +25,10 @@ DIR = sorted(set(dir)) # R1, R2
 
 # snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --keep-going --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.nodes} -o {cluster.output} -e {cluster.error} -t {cluster.time} -J {cluster.job-name} -c {threads} --mem={cluster.mem}" -s Snakefile
 
+# custom outputs
+de_outputs = ["data/de/norm_counts.txt", "data/de/log_norm_counts.txt", "data/de/sample_PCA.png"]
+# "data/de/sample_heatmap.png"
+
 localrules: fragment_length_plot, frip_plot
 
 rule all:
@@ -40,8 +44,11 @@ rule all:
 		# filtered bamfiles, bigwigs, frip
 		expand("samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam", sample = SAMPLE),
 		expand("data/bigwigs/{sample}_tracks.bw", sample = SAMPLE),
-		"data/frip.html"
+		"data/frip.html",
+		# differential peaks
+		de_outputs
 
 include: "rules/quality_and_align.smk"
 include: "rules/filter_shift.smk"
 include: "rules/peak_catalog_no_downsample.smk"
+include: "rules/deseq2.smk"
