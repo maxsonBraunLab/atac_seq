@@ -49,7 +49,7 @@ rule index:
 	input:
 		deduplicated = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam"
 	output:
-		indexed = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam.bai"
+		indexed = temp("samples/bamfiles/{sample}_rmChrM_dedup_quality.bam.bai")
 	conda:
 		"../envs/sambamba.yaml"
 	threads: 4 
@@ -60,6 +60,14 @@ rule index:
 		sambamba index -t {threads} {input.deduplicated} {output.indexed}
 		
 		"""
+
+rule align_stats:
+	input:
+		expand("samples/sample_stats/{sample}_read_depths.csv", sample = SAMPLE)
+	output:
+		"samples/sample_stats/align_stats.txt"
+	shell:
+		"cat {input} > {output}"
 
 #Filter out reads that match the quality flags that we want in samtools
 rule samtoolsQuality:
@@ -76,8 +84,8 @@ rule samtoolsQuality:
 		"""--- deduplicating reads---"""
 	shell:
 		"""
-		samtools view -h -@ 4 -b -F 1804 {input.bamfile} > {output.quality}
-		samtools view -@ 4 -c {output.quality}| xargs -I{{}} echo "{wildcards.sample},satisfy_quality,"{{}}$'\n'  >> {params.readsfile}
+		samtools view -h -@ {threads} -b -F 1804 {input.bamfile} > {output.quality}
+		samtools view -@ {threads} -c {output.quality}| xargs -I{{}} echo "{wildcards.sample},satisfy_quality,"{{}}$'\n'  >> {params.readsfile}
 		"""
 # Remove reads unmapped, mate unmapped, not primary alignment, reads failing platform, duplicates (-F 1804)
 # Retain properly paired reads -f 2
@@ -88,7 +96,8 @@ rule dedup:
 	input:
 		bamfile = "samples/bamfiles/{sample}_rmChrM.bam",
 	output:
-		deduplicated = temp("samples/bamfiles/{sample}_rmChrM_dedup.bam"),
+		temp("samples/bamfiles/{sample}_rmChrM_dedup.bam.bai"),
+		deduplicated = temp("samples/bamfiles/{sample}_rmChrM_dedup.bam")
 	params:
 		readsfile = "samples/sample_stats/{sample}_read_depths.csv",
 	conda:
@@ -98,8 +107,8 @@ rule dedup:
 		"""--- deduplicating reads---"""
 	shell:
 		 """
-		 sambamba markdup -t {threads} {input.bamfile} {output.deduplicated}
-		 samtools view -@ 4 -F 1024 -c {output.deduplicated}| xargs -I{{}} echo "{wildcards.sample},no_duplicates,"{{}}$'\n'  >> {params.readsfile}
+		 sambamba markdup -r -t {threads} {input.bamfile} {output.deduplicated}
+		 samtools view -@ {threads} -c {output.deduplicated}| xargs -I{{}} echo "{wildcards.sample},no_duplicates,"{{}}$'\n'  >> {params.readsfile}
 		 """
 
 #Remove the mitochondrial reads This requires that the mitochondrial reads have the  name chrM so that you can grep them with an inverted search
@@ -115,8 +124,6 @@ rule removeMitochondrial:
 		"../envs/samtools.yaml"
 	message:
 		"""--- Removing mitochondrial reads---"""
-	log:
-		totalreads = "samples/bamfiles/{sample}_readswmito.txt"
 	threads: 4 
 	shell:
 		"""

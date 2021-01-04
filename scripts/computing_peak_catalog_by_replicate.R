@@ -13,6 +13,9 @@ library(dplyr)
 library(plyranges)
 library(stringr)
 library(purrr)
+library(tidyr)
+library(Rsamtools)
+library(parallel)
 
 #This is the location for our merged narrow peaks file
 np_file <- args[1]
@@ -31,6 +34,7 @@ bedfile <- args[4]
 metadata_file <- args[6]
 replace_expression <- args[7]
 
+options(srapply_fapply="parallel", mc.cores = 8)
 
 #This command reads in the merged broadnarrowpeak files and adds the information about the genome
 #we used 
@@ -43,7 +47,7 @@ peaks <- as_granges(peaks) %>% set_genome_info(genome = genome_name)
 
 #now lets load the metadata file
 metadata <- read.delim(metadata_file, header=TRUE)
-
+print("metadata imported")
 #now lets read in the blacklist file so we can remove blacklisted regions
 hg38.blacklist.v2 <- read.delim(blacklist_file, header=FALSE)
 colnames(hg38.blacklist.v2) <- c("seqnames","start","end","reason")
@@ -54,28 +58,17 @@ blacklist <- as_granges(hg38.blacklist.v2) %>% set_genome_info(genome = genome_n
 #number, as well as the X and Y chromosomes
 filtered_peaks <- peaks %>% filter(., str_detect(seqnames,"^chr[\\dXY]+$"))
 
-#now we are going to edit and fix the names on the all_broad_peaks table so we can match them with the sample ID
-#replace_expression <- "-ATAC/.*"
-filtered_peaks$name <- as.character(filtered_peaks$name) %>% str_replace(., replace_expression,"")
-
-
-metadata$Condition <- as.character(metadata$Condition)
-#match the name of the condition to the name of the cleaned sample ID
-filtered_peaks$treatment <- as.character(map(filtered_peaks$name, (function (x) metadata[as.character(metadata$SampleID) == as.character(x),]$Condition)))
-print(unique(filtered_peaks$treatment))
-print(unique(filtered_peaks$name))
-
-print(unique(metadata$SampleID))
-print(unique(metadata$Condition))
+# create extra col to indicate treatment + define replicate
+filtered_peaks <- as.data.frame(filtered_peaks) %>% separate(name, into = c("treatment"), sep = "_", remove=FALSE)
+rep_df <- as.data.frame(str_split_fixed(filtered_peaks$name, "_", 3))
+filtered_peaks$replicate <- paste(rep_df$V1, rep_df$V2, sep = "_")
+filtered_peaks <- as_granges(filtered_peaks)
 
 #now we are going to make a list of all the treatments by group and essentially apply reduce
 #reduce doesn't work here so instead we are using a for loop
+# for each condition, find consensus peaks.
 peaks_list <- filtered_peaks %>% split(., filtered_peaks$treatment)
-print("now for the names of the peaks list")
-print(names(peaks_list))
-
 catalog <- NULL
-names(peaks_list)
 for (item in 1:length(peaks_list)) {
 
     coverage <- compute_coverage(peaks_list[item]) %>%
@@ -83,29 +76,55 @@ for (item in 1:length(peaks_list)) {
        reduce_ranges() %>%
        filter_by_non_overlaps(blacklist)
 
-    print(head(peaks_list[item]))
-    #Now lets get the name of what the condition is
-    #since we split into lists by name, the name of the list we are using
-    #will be associated with the condition that it is
-    treatment_text <- names(peaks_list)[item]
-    print(treatment_text)
-    write_bed(coverage, paste0(bedfile, "_", treatment_text, ".bed") ) 
-
     if (length(catalog)==0) {
        catalog <- coverage 
-    }else{
+    } else {
        seqlengths(catalog) <- rep(NA,length(seqlengths(catalog))) #this fixes an error where it recalculates seq lengths giving different lengths
        seqlengths(coverage) <- seqlengths(catalog)                # and then won't let you create a union between them
        catalog <- GenomicRanges::union(catalog, coverage)
-
     }
-        
 }
 
-cleaned_catalog <- catalog   #%>% filter_by_non_overlaps(blacklist)
+catalog <- catalog %>% as.data.frame() %>% mutate(name = paste0("consensus_peak_",row_number())) %>% as_granges()
+write_bed(catalog, bedfile)
 
-named_catalog <- cleaned_catalog %>% as.data.frame() %>% mutate(name = paste0("consensus_peak_",row_number())) %>% as_granges()
-named_catalog
+# for each replicate, write stats ----------------------------------------------------------------------------
+rep_split <- filtered_peaks %>% split(., filtered_peaks$replicate)
+stats_list <- lapply(rep_split, function(x) {
+    replicate <- toString(unique(x$replicate))
+    treatment <- unique(x$treatment)
+    peaks_in_replicate <- as.integer(nrow(as.data.frame(x)))
+    peaks_in_consensus <- nrow(as.data.frame(  join_overlap_inner(x, catalog)  ))
+    number_consensus_peaks <- nrow(as.data.frame(catalog))
+    temp_stats <- data.frame(
+        treatment=treatment,
+        rep = replicate,
+        tot_peaks = peaks_in_replicate,
+        peaks_in_consensus=peaks_in_consensus,
+        tot_consensus_peaks=number_consensus_peaks)
+})
+consensus_stats <- do.call(rbind, stats_list)
+save.image()
 
-write_bed(named_catalog, bedfile)
+# lastly, add FRCC metric = fraction of reads in consensus catalog
+catalog_df <- as.data.frame(catalog)
+for (i in 1:nrow(consensus_stats)) {
+  # define input files
+  sample <- consensus_stats[i, "rep"]
+  in_file <- paste0("samples/bamfiles/filtered/", sample, "_rmChrM_dedup_quality_shiftedReads_sorted.bam")
+  bamFile <- BamFile(in_file)
+  # in regions is catalog variable
 
+  # count reads in consensus intervals
+  gr <- GRanges( seqnames = catalog_df$seqnames, ranges = IRanges(start = c(catalog_df$start), end = c(catalog_df$end) ))
+  counted <- countBam(bamFile, param = ScanBamParam(which=gr, what = scanBamWhat() ))
+  reads_in_cc <- sum(counted$records)
+  total_reads <- countBam(bamFile, param = ScanBamParam(what = "qname"))$records
+  frcc <- reads_in_cc / total_reads
+  consensus_stats[i, "tot_reads"] <- total_reads
+  consensus_stats[i, "reads_in_CC"] <- reads_in_cc
+  consensus_stats[i, "%_reads_in_CC"] <- frcc
+}
+
+consensus_stats
+write.table(consensus_stats, "samples/macs/consensus_stats.txt", quote= FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)

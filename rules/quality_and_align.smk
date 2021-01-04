@@ -39,14 +39,15 @@ rule sortbam:
 	input:
 		rules.align.output
 	output:
-		"samples/align/sorted/{sample}_sorted.bam"
+		temp("samples/align/sorted/{sample}_sorted.bam"),
+		temp("samples/align/sorted/{sample}_sorted.bam.bai")
 	conda:
 		"../envs/bwa.yaml"
 	threads: 4
 	message:
 		"""--- sorting {wildcards.sample} ---"""
 	shell:
-		"samtools sort -@ {threads} -m '2G' {input} > {output}; samtools index -b {output}"
+		"samtools sort -@ {threads} -m '2G' {input} > {output[0]}; samtools index -b {output[0]}"
 # -m '2G' = require 2GB of memory to sort for performance gains.
 
 # qc metrics -------------------------------------------------------------------

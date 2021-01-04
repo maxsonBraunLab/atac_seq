@@ -1,36 +1,65 @@
 # Configuration file for ATAC-Seq
 
+# quality control,  alignment, macs ----------------------------------------------------------
+
 # sequencing adapters to trim in fasta format.
 ADAPTERS: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta"
 
 # fasta file of genome for alignment.
 REFERENCE: "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta"
 
-# metadata file for group testing
-METADATA: "MOLM_ATAC_metadata.txt"
-
 # fastq_screen config file
 FASTQ_SCREEN_CONF: "config/fastq_screen.conf"
 
-# given the assumption that users will symlink data into an analysis directory, the config file is now cleaner.
-
 # effective size of the genome to be used for MACS peak calling
-#macs_genome_size: "1.87e9" #mouse default size
-macs_genome_size: "2.7e9" #human default genome size
+# genome_size: "1.87e9" #mouse default size
+genome_size: "2.7e9" #human default genome size
+
+# consensus peaks catalogue ------------------------------------------------------------------
+
+#The metadata file that has a mapping from sample name to condition. Columns must be 'SampleID' and 'Condition'. 
+metadata_file: "config/metadata.tsv"
 
 # select peaks that are in this many replicates per condition:
 n_intersects: 2
 
 #The location of the blacklist file that we will use to filter out regions that overlap a blacklist
-#below is the default blacklist for mouse genome mm10
-#blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
-#below this line is the default blacklist for human genome hg38
+# blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
 blacklist_file: "/home/groups/MaxsonLab/indices/GRch38/hg38.blacklist.v2.bed"
 
 #the name of the genome that you are using for usage
-genome_name: "hg38" # or "mm10"
+# genome_name: "mm10"
+genome_name: "hg38"
 
-#The metadata file that has a mapping from sample name to condition
-metadata_file: "config/metadata.tsv"
+# chip screen --------------------------------------------------------------------------------
+chrom_sizes: "/home/groups/MaxsonLab/indices/GRch38/hg38.sorted.chrom.sizes"
 
+# differential peaks -------------------------------------------------------------------------
+significance: 0.05
 
+# essential report ---------------------------------------------------------------------------
+gen_report: yes # [yes, no]
+
+title: "GSK x Quiz treatment with MOLM13 cells at 24 hours"
+authors:
+  - Dan Coleman
+  - Rowan Callahan
+  - Garth Kong
+  - Ted Braun
+  - Julia Maxson
+  - et al.
+
+intro: "We are looking to do some drug combination studies with GSK and Quizartinib to treat MOLM13 cells which have FLT3-ITD mutations."
+
+analysis:
+  - "Trim reads via trimmomatic and align to genome using bowtie2."
+  - "Remove mitochondrial reads, remove PCR duplicate reads, shift reads, and make tracks."
+  - "Call peaks, take consensus peaks, and make the counts table."
+  - "Differential analysis via DESeq2 with Condition as variable."
+
+takeaways:
+  - "takeaway 1"
+  - "takeaway 2"
+  - "takeaway 3"
+
+notes: "We answered these questions, and look forward to answering more."

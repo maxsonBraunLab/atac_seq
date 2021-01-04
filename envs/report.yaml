@@ -1,0 +1,16 @@
+name: report
+channels:
+  - bioconda
+  - defaults
+  - anaconda
+  - r
+  - conda-forge
+dependencies:
+  - r-base=3.6
+  - r-rmarkdown=1.12
+  - r-tidyverse=1.2.1
+  - r-ggplot2=3.1.1
+  - r-formattable=0.2.0.1
+  - r-plotly=4.9.2.1
+  - r-dt=0.5
+
