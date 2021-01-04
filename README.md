@@ -6,7 +6,7 @@ Process and analyze your ATAC-Seq datasets
 
 ```bash
 # clone this repo to a new working directory
-git clone git@github.com:maxsonBraunLab/atac_seq-2.0.git
+git clone git@github.com:maxsonBraunLab/atac_seq2.git
 
 # cd into atac_seq-2.0 and make new dir for your FASTQ files
 mkdir -p samples/raw
@@ -30,7 +30,15 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake # installs snakem
 conda activate snakemake
 ```
 
-# 3. Run the pipeline
+# 3. Prepare your pipeline configuration
+
+Edit the `config.yaml` file to specify which organism to use and other pipeline parameters.
+
+Edit the `config/metadata.csv` file to specify which replicates belong with which condition in DESeq2.
+
+
+
+# 4. Run the pipeline
 
 You can run the pipeline using an interactive node like this:
 
@@ -48,6 +56,9 @@ You can run the pipeline via batch mode like this:
 
 ```bash
 snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.N}  -t {cluster.t} -J {cluster.J} -c {cluster.c} --mem={cluster.mem}" -s Snakefile
+
+# if the above does not work, try the command below
+snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile .slurm
 ```
 
 This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, calculating differentially open chromatin regions).
@@ -74,19 +85,20 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
   * Fragment length distribution plot
   * Fraction of Reads in Peaks (FRiP) per sample 
   * PCA of all replicates
-* Quality Table of number of reads after removing mito, duplicates, poorly mapping
-* Counts table of peaks
-  * Pre and post-downsampling to sample with the lowest coverage 
-* Fraction of Reads in Peaks (FRIP) per sample
+* Table of QC metrics per sample (e.g. number of reads before and after removing mitochondrial reads, duplicate reads, poorly mapping reads)
+* Counts table of peaks (rows are intervals, columns are samples)
+* Fraction of Reads in Peaks (FRiP) per sample
 * Consensus peaks among _n_ replicates (_n_ is configurable) 
-* Read pileup tracks in bigwig format
-* Differentially open chromatin regions
-* Commonly used data (tracks, QC metrics, counts table) are in `data` directory.
+* Read pileup tracks in bigwig format **in progress**
+* Differentially open chromatin regions for all unique combinations of conditions.
+  * Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
+* Processed data (tracks, QC metrics, counts table) are in `data` directory.
 
 ## Methods
 
 ![](rulegraph.svg).
 
 # References
+
 
 
