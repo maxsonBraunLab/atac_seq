@@ -80,7 +80,7 @@ formattable::as.datatable(
 
 ## FRiP
 ```{r}
-frip_files <- list.files(snakemake@input[['frip_folder']], full.names = TRUE)
+frip_files <- list.files(snakemake@params[['frip_folder']], full.names = TRUE)
 frip_df <- as.data.frame.list(lapply(frip_files, read.table, header = TRUE))
 rownames(frip_df) <- c("outside", "inside")
 frip_df <- as.data.frame(t(frip_df)) %>%
