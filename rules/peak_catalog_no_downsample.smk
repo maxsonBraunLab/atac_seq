@@ -63,7 +63,7 @@ rule frip_count:
 #This rule merges all of the catalog counts from the individual samples into one catalog for all of the samples
 rule counts_table:
     input:
-        read_count = expand("samples/macs/{sample}_counts.bed", sample=SAMPLE),
+        read_count = expand("samples/macs/counts/{sample}_counts.bed", sample=SAMPLE),
     output:
         read_count = "data/counts_table.txt"
     run:
