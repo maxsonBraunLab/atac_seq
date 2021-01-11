@@ -44,7 +44,7 @@ rule shiftReads:
 		"""
 
 #many commands require that there is index for the bamfile that you are using. TODO: this command should
-#eventually be pulled together into the command that needs this index which is hte shifting rule  above
+#eventually be pulled together into the command that needs this index which is the shifting rule  above
 rule index:
 	input:
 		deduplicated = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam"
