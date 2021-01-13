@@ -3,37 +3,13 @@ __default__:
   time: '06:00:00'
   nodes: 1
   partition: exacloud
-  job-name: "{rule}.{wildcards.sample}"
-  output: "logs/{rule}/{wildcards.sample}.out"
-  error: "logs/{rule}/{wildcards.sample}.err"
+  job-name: "{rule}"
+  output: "logs/{rule}/{wildcards}.out"
+  error: "logs/{rule}/{wildcards}.err"
   cpus-per-task: 8
   mem: 4G
 align:
   cpus-per-task: 16
   mem: 32G
-# sortbam:
-#   job-name: "sortbam.{wildcards.sample}"
-#   output: "logs/sortbam/{wildcards.sample}.out"
-#   error: "logs/sortbam/{wildcards.sample}.err"
-fastqc:
-  job-name: "fastqc.{wildcards.sample}"
-  output: "logs/fastqc/{wildcards.sample}.out"
-  error: "logs/fastqc/{wildcards.sample}.err"
-fastqc_screen:
-  job-name: "scrn.{wildcards.sample}"
-  output: "logs/fastq_screen/{wildcards.sample}.out"
-  error: "logs/fastq_screen/{wildcards.sample}.err"
-removeMitochondrial:
-  job-name: "mto.{wildcards.sample}"
-  output: "logs/removeMitochondrial/{wildcards.sample}.out"
-  error: "logs/removeMitochondrial/{wildcards.sample}.err"
-peak_catalog_no_downsmpl:
-  job-name: "pk_cat"
-  output: "logs/{rule}/%j.out"
-  error: "logs/{rule}/%j.err"
 makeBigwig:
   cpus-per-task: 16
-merge_catalog_counts_no_downsmpl:
-  job-name: "{rule}"
-  output: "logs/{rule}/%j.out"
-  error: "logs/{rule}/%j.err"

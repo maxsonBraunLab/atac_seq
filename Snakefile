@@ -43,7 +43,7 @@ rule all:
 		"data/frip.html",
 		"data/counts_table.txt",
 		expand("samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam", sample = SAMPLE),
-		expand("data/bigwigs/{sample}_tracks.bw", sample = SAMPLE),
+		# expand("data/bigwigs/{sample}_tracks.bw", sample = SAMPLE),
 		# deseq2 for PCA and differential peak calc
 		directory("data/de"),
 		"data/de/norm_counts.txt",

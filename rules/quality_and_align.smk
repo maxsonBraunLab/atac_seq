@@ -55,7 +55,7 @@ rule sortbam:
 # fragment length distribution
 rule fragment_length:
 	input:
-		rules.sortbam.output
+		rules.sortbam.output[0]
 	output:
 		"samples/align/fragment_length/{sample}.txt"
 	conda:
@@ -74,7 +74,12 @@ rule fragment_length_plot:
 		"data/fragment_length_dist.html"
 	run:
 		pd.options.plotting.backend = "plotly"
-		df = pd.concat([pd.read_csv(f, index_col = 1, sep = " ", names = [f.split('/')[3][:-4]]) for f in input], axis = 1)
+		dfs = []
+		for f in input:
+			sample_name = [os.path.basename(f).split('.')[0]]
+			temp_df = pd.read_csv(f, index_col = 1, sep = " ", names = sample_name)
+			dfs.append(temp_df)
+		df = pd.concat(dfs, axis = 1)
 		print("Fragment Length Distribution Table")
 		print(df)
 		fragment_length_dist = df.plot()

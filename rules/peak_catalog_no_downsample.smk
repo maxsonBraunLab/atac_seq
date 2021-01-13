@@ -36,8 +36,8 @@ rule frip_plot:
         df.loc['ratio'] = df.loc['reads_in_peaks'] / df.loc['total_reads']
         # plot graph. plot ratio as bottom as percent, and plot to max value of 1.
         fig = go.Figure(data=[
-            go.Bar(name='FRiP', x=df.columns, y=df.loc['ratio'], marker_color='rgb(255,201,57)'),
-            go.Bar(name='fraction_reads', x=df.columns, y= ([1] * df.shape[1]) - df.loc['ratio'], marker_color='rgb(0,39,118)')])
+            go.Bar(name='inside_peaks', x=df.columns, y=df.loc['ratio'], marker_color='rgb(255,201,57)'),
+            go.Bar(name='outside_peaks', x=df.columns, y= ([1] * df.shape[1]) - df.loc['ratio'], marker_color='rgb(0,39,118)')])
         # Change the bar mode
         fig.update_layout(barmode='stack', title='Fraction of Reads in Peaks by Sample', xaxis_tickfont_size=14,
             yaxis=dict(title='Fraction of reads in peaks', titlefont_size=16, tickfont_size=14),
