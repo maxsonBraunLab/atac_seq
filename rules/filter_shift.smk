@@ -1,38 +1,26 @@
 rule makeBigwig:
 	input:
-		quality = "samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam"
+		"samples/bamfiles/{sample}_rmChrM_dedup_quality_shifted.bam"
 	output:
-		bigwig = "data/bigwigs/{sample}_tracks.bw",
+		"data/bigwigs/{sample}_tracks.bw",
 	conda:
 		"../envs/deeptools.yaml"
 	threads: 16
 	message:
 		"""--- making bigwig---"""
 	shell:
-		"""
-		bamCoverage --bam {input.quality} -o {output.bigwig} --numberOfProcessors {threads} --skipNAs --binSize 5 --smoothLength 15
-		"""
-# one bigwig track
-
-rule sortbam2:
-	input:
-		"samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads.bam"
-	output:
-		"samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam"
-	conda:
-		"../envs/bwa.yaml"
-	threads: 4
-	shell:
-		"samtools sort -@ {threads} -m '2G' {input} > {output}; samtools index -b {output}"
+		"bamCoverage --bam {input} -o {output} --p {threads} --skipNAs --binSize 10 --smoothLength 50 --normalizeUsing CPM"
 
 #ATAC sequencing involves a transposase that slightly shifts the reads when 
 #it is used. In order to correct this we need to 5, 4 offset the reads so that they line up with the actual accessibility locations
-rule shiftReads:
+rule shift_reads:
 	input:
 		bamfile = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam",
 		index = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam.bai",
 	output:
-		bamfile = "samples/bamfiles/{sample}_rmChrM_dedup_quality_shiftedReads.bam",
+		tmp = temp("samples/bamfiles/{sample}_tmp.bam"),
+		bamfile = "samples/bamfiles/{sample}_rmChrM_dedup_quality_shifted.bam"
+	params:
 	conda:
 		"../envs/deeptools.yaml"
 	threads: 4 
@@ -40,11 +28,11 @@ rule shiftReads:
 		"""--- shifting reads---"""
 	shell:
 		"""
-		alignmentSieve --bam {input.bamfile} --outFile {output.bamfile} --numberOfProcessors {threads} --ATACshift
+		alignmentSieve --bam {input.bamfile} --outFile {output.tmp} -p {threads} --ATACshift
+		samtools sort -@ {threads} -o {output.bamfile} {output.tmp}
+		samtools index -@ {threads} {output.bamfile}
 		"""
 
-#many commands require that there is index for the bamfile that you are using. TODO: this command should
-#eventually be pulled together into the command that needs this index which is the shifting rule  above
 rule index:
 	input:
 		deduplicated = "samples/bamfiles/{sample}_rmChrM_dedup_quality.bam"
@@ -56,10 +44,7 @@ rule index:
 	message:
 		"""--- indexing reads---"""
 	shell:
-		"""
-		sambamba index -t {threads} {input.deduplicated} {output.indexed}
-		
-		"""
+		"sambamba index -t {threads} {input.deduplicated} {output.indexed}"
 
 rule align_stats:
 	input:
@@ -70,7 +55,7 @@ rule align_stats:
 		"cat {input} > {output}"
 
 #Filter out reads that match the quality flags that we want in samtools
-rule samtoolsQuality:
+rule hq_mapped_reads:
 	input:
 		bamfile = "samples/bamfiles/{sample}_rmChrM_dedup.bam"
 	output:
@@ -81,7 +66,7 @@ rule samtoolsQuality:
 		"../envs/samtools.yaml"
 	threads: 4
 	message:
-		"""--- deduplicating reads---"""
+		"""--- select high-quality mapped reads ---"""
 	shell:
 		"""
 		samtools view -h -@ {threads} -b -F 1804 {input.bamfile} > {output.quality}
@@ -92,7 +77,7 @@ rule samtoolsQuality:
 
 #deduplicate the reads that we have. This will get rid of potential PCR duplicates
 #After this step you might have a large difference in reads if some sample have a high percentage of duplicates 
-rule dedup:
+rule deduplicate_reads:
 	input:
 		bamfile = "samples/bamfiles/{sample}_rmChrM.bam",
 	output:
@@ -114,7 +99,7 @@ rule dedup:
 #Remove the mitochondrial reads This requires that the mitochondrial reads have the  name chrM so that you can grep them with an inverted search
 #This works for our current aligner and references, but if you get zero mitochondrial reads filtered out its possible that the mitochondrial chromosome
 #has a name that is different from "chrM"
-rule removeMitochondrial:
+rule rm_mito_reads:
 	input:
 		bamfile = "samples/align/sorted/{sample}_sorted.bam", #change this to _merged if merging lanes
 	output:

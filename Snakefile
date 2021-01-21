@@ -15,13 +15,16 @@ SAMPLE = sorted(set(SAMPLE))
 DIR = sorted(set(dir)) # R1, R2
 # sample will glob cond+replicate information like 'MOLM24D_1' but not R1 or R2.
 
+def message(text):
+	print(text, file = sys.stderr)
+
 for i in SAMPLE:
-	print("--- samples to process: {}".format(i))
+	message("--- samples to process: {}".format(i))
 
 essential_report = []
-if config["gen_report"] == True: essential_report.append("data/essential_report.html"); print("Generating essential report")
+if config["gen_report"] == True: essential_report.append("data/essential_report.html"); message("Generating essential report")
 
-# snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --keep-going --profile ./slurm --cluster-config cluster.yaml
+# snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --keep-going --profile slurm --cluster-config cluster.yaml
 
 DB, CELL_LINE, FILE, = glob_wildcards("/home/groups/MaxsonLab/kongg/chip_seq/data/beds/{db}/{cell_line}/{file}.bed.gz")
 
@@ -42,7 +45,7 @@ rule all:
 		"samples/macs/consensus_stats.txt",
 		"data/frip.html",
 		"data/counts_table.txt",
-		expand("samples/bamfiles/filtered/{sample}_rmChrM_dedup_quality_shiftedReads_sorted.bam", sample = SAMPLE),
+		expand("samples/bamfiles/{sample}_rmChrM_dedup_quality_shifted.bam", sample = SAMPLE),
 		# expand("data/bigwigs/{sample}_tracks.bw", sample = SAMPLE),
 		# deseq2 for PCA and differential peak calc
 		directory("data/de"),
@@ -52,8 +55,8 @@ rule all:
 		"data/de/de_stats.txt",
 		essential_report,
 		# chip screen - intersect consensus peaks with public chip data
-		expand("data/chip_screen/{db}/{cell_line}/consensus_peaks_{file}.{ext}",
-				zip, db = DB, cell_line = CELL_LINE, file = FILE, ext = ['bed.gz', 'out'] )
+		# expand("data/chip_screen/{db}/{cell_line}/consensus_peaks_{file}.{ext}",
+		# 		zip, db = DB, cell_line = CELL_LINE, file = FILE, ext = ['bed.gz', 'out'] )
 
 
 include: "rules/quality_and_align.smk"

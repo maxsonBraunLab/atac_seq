@@ -16,14 +16,21 @@ rule trimming:
 	message:
 		"""--- Trimming {wildcards.sample} ---"""
 	shell:
-		"""trimmomatic PE -threads {threads} {input.forward_strand} {input.reverse_strand} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{params.adapter}:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:30"""
+		"trimmomatic PE -threads {threads} {input.forward_strand} {input.reverse_strand} \
+			{output.forward_paired} {output.forward_unpaired} \
+			{output.reverse_paired} {output.reverse_unpaired} \
+			ILLUMINACLIP:{params.adapter}:2:30:10 \
+			LEADING:3 \
+			TRAILING:3 \
+			SLIDINGWINDOW:4:15 \
+			MINLEN:30"
 
 rule align:
 	input:
 		forward_paired = rules.trimming.output.forward_paired,
 		reverse_paired = rules.trimming.output.reverse_paired
 	output:
-		temp("samples/align/bam/{sample}.bam")
+		"samples/align/bam/{sample}.bam"
 	params:
 		reference = config["REFERENCE"]
 	conda:
@@ -33,14 +40,14 @@ rule align:
 		"""--- Aligning {wildcards.sample} to reference."""
 	threads: 16
 	shell:
-		"""bwa mem -t {threads} {params.reference} {input.forward_paired} {input.reverse_paired} | samtools view -bS - > {output} """
+		"bwa mem -t {threads} {params.reference} {input.forward_paired} {input.reverse_paired} | samtools view -bS - > {output}"
 
 rule sortbam:
 	input:
 		rules.align.output
 	output:
-		temp("samples/align/sorted/{sample}_sorted.bam"),
-		temp("samples/align/sorted/{sample}_sorted.bam.bai")
+		"samples/align/sorted/{sample}_sorted.bam",
+		"samples/align/sorted/{sample}_sorted.bam.bai"
 	conda:
 		"../envs/bwa.yaml"
 	threads: 4
@@ -55,17 +62,17 @@ rule sortbam:
 # fragment length distribution
 rule fragment_length:
 	input:
-		rules.sortbam.output[0]
+		"samples/align/sorted/{sample}_sorted.bam"
 	output:
 		"samples/align/fragment_length/{sample}.txt"
 	conda:
 		"../envs/bwa.yaml"
 	threads: 4
 	shell:
-		"samtools view {input} | cut -f9 | awk '$1 > 0 && $1 < 1000' | sort --parallel={threads} -S 50% | uniq -c | sort -b -k2,2n | sed -e 's/^[ \t]*//' > {output}"
+		"samtools view {input} | cut -f9 | awk '$1 > 0 && $1 < 1000' | sort --parallel={threads} -S 2G | uniq -c | sort -b -k2,2n | sed -e 's/^[ \t]*//' > {output}"
 # output fragment length info per sample.
 # cut -f9 = fragment length in bam file. awk '$1 > 0' | sort | uniq -c = get positive fragment length, sort, count the lengths. 
-# sort -b -k2,2n = col1 is fragment size, col2 is counts. sort by counts numerically. sed = remove tabs
+# sort -b -k2,2n = col2 is fragment size, col1 is counts of that fragment size. sort by counts numerically. sed = remove tabs
 
 rule fragment_length_plot:
 	input:
@@ -76,6 +83,7 @@ rule fragment_length_plot:
 		pd.options.plotting.backend = "plotly"
 		dfs = []
 		for f in input:
+			print(f)
 			sample_name = [os.path.basename(f).split('.')[0]]
 			temp_df = pd.read_csv(f, index_col = 1, sep = " ", names = sample_name)
 			dfs.append(temp_df)

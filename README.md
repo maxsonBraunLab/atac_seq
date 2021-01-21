@@ -16,7 +16,7 @@ ln -s /absolute/path/to/files/condition1_replicate1_R1.fastq.gz .
 ln -s /absolute/path/to/files/condition1_replicate1_R2.fastq.gz .
 ```
 
-
+After the files are symlinked, rename the symlinks to match the required input format: `{condition}_{replicate}_{dir}.fastq.gz` (more information in pipeline summary below).
 
 # 2. Prepare your conda environment
 
@@ -30,15 +30,17 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake # installs snakem
 conda activate snakemake
 ```
 
+Make sure to also install plotly in the snakemake environment with `conda install -c plotly plotly` 
+
 # 3. Prepare your pipeline configuration
 
 Edit the `config.yaml` file to specify which organism to use and other pipeline parameters.
 
 Edit the `config/metadata.csv` file to specify which replicates belong with which condition in DESeq2.
 
-
-
 # 4. Run the pipeline
+
+Copy the entire slurm folder into your home directory `~/.config/snakemake` and then delete the local copy.
 
 You can run the pipeline using an interactive node like this:
 
@@ -55,15 +57,14 @@ This is sufficient for small jobs or running small parts of the pipeline, but no
 You can run the pipeline via batch mode like this:
 
 ```bash
-snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.N}  -t {cluster.t} -J {cluster.J} -c {cluster.c} --mem={cluster.mem}" -s Snakefile
+snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile slurm
 
 # if the above does not work, try the command below
-snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile .slurm
+snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --cluster "sbatch -p {cluster.partition} -N {cluster.N}  -t {cluster.t} -J {cluster.J} -c {cluster.c} --mem={cluster.mem}" -s Snakefile
+
 ```
 
-This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, calculating differentially open chromatin regions).
-
-
+This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
 
 # Pipeline Summary
 
@@ -81,24 +82,30 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 
 ## Outputs
 
+All of the following are in the `data` directory.
+
 * Quality Control
+
   * Fragment length distribution plot
   * Fraction of Reads in Peaks (FRiP) per sample 
-  * PCA of all replicates
-* Table of QC metrics per sample (e.g. number of reads before and after removing mitochondrial reads, duplicate reads, poorly mapping reads)
-* Counts table of peaks (rows are intervals, columns are samples)
-* Fraction of Reads in Peaks (FRiP) per sample
-* Consensus peaks among _n_ replicates (_n_ is configurable) 
-* Read pileup tracks in bigwig format **in progress**
-* Differentially open chromatin regions for all unique combinations of conditions.
-  * Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
-* Processed data (tracks, QC metrics, counts table) are in `data` directory.
 
-## Methods
+* Table of QC metrics per sample at the alignment, peak calling, and differential expression stage. 
+
+* Raw counts table of peaks (rows are intervals, columns are samples)
+
+* Fraction of Reads in Peaks (FRiP) per sample
+
+* Read pileup tracks in bigwig format **in progress**
+
+* Differentially open chromatin regions for all unique combinations of conditions.
+
+  * Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
+
+* Consensus peaks among _n_ replicates (_n_ is configurable). This is in the `samples` folder. 
+
+  # Methods
 
 ![](rulegraph.svg).
 
 # References
-
-
 

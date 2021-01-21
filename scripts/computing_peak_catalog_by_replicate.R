@@ -32,13 +32,9 @@ bedfile <- args[4]
 
 #read metadata file
 metadata_file <- args[6]
-replace_expression <- args[7]
 
 options(srapply_fapply="parallel", mc.cores = 8)
 
-#This command reads in the merged broadnarrowpeak files and adds the information about the genome
-#we used 
-#peaks <- read_narrowPeaks(np_file, genome_info = genome_name)
 peaks <- read.delim(np_file, header=FALSE)
 
 #lets load the peaks file and convert it to a granges object
@@ -104,14 +100,13 @@ stats_list <- lapply(rep_split, function(x) {
         tot_consensus_peaks=number_consensus_peaks)
 })
 consensus_stats <- do.call(rbind, stats_list)
-save.image()
 
 # lastly, add FRCC metric = fraction of reads in consensus catalog
 catalog_df <- as.data.frame(catalog)
 for (i in 1:nrow(consensus_stats)) {
   # define input files
   sample <- consensus_stats[i, "rep"]
-  in_file <- paste0("samples/bamfiles/filtered/", sample, "_rmChrM_dedup_quality_shiftedReads_sorted.bam")
+  in_file <- paste0("samples/bamfiles/", sample, "_rmChrM_dedup_quality_shifted.bam")
   bamFile <- BamFile(in_file)
   # in regions is catalog variable
 
