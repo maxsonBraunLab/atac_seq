@@ -3,17 +3,6 @@ channels:
   - conda-forge
   - bioconda
   - defaults
-  - https://conda.anaconda.org/bioconda/linux-64
-  - https://conda.anaconda.org/bioconda/noarch
-  - https://conda.anaconda.org/conda-forge/linux-64
-  - https://conda.anaconda.org/conda-forge/noarch
-  - https://repo.anaconda.com/pkgs/main/linux-64
-  - https://repo.anaconda.com/pkgs/main/noarch
-  - https://repo.anaconda.com/pkgs/free/linux-64
-  - https://repo.anaconda.com/pkgs/free/noarch
-  - https://repo.anaconda.com/pkgs/r/linux-64
-  - https://repo.anaconda.com/pkgs/r/noarch
-  - https://repo.anaconda.com/pkgs/pro/linux-64
-  - https://repo.anaconda.com/pkgs/pro/noarch
 dependencies:
-  - deeptools
+  - deeptools=3.5.0
+  - samtools=1.9
