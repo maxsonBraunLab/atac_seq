@@ -1,6 +1,6 @@
 # atac_seq2
 
-Process and analyze your ATAC-Seq datasets
+Process and analyze your PE ATAC-Seq datasets
 
 # 1. Prepare your work environment
 
@@ -77,35 +77,37 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
   * `Replicate` = biological replicate. acceptable values are integers >= 1.
   * `Dir` = read direction. Acceptable values are ['R1', 'R2'].
   * Reads must be placed in the `samples/raw` directory.
-* Adapter file in FASTA format for adapter trimming.
+* Adapter file in FASTA format for adapter trimming. This is provided.
 * Reference genome in FASTA format.
 
 ## Outputs
 
 All of the following are in the `data` directory.
 
-* Quality Control
+* Quality Control plots in HTML format
 
-  * Fragment length distribution plot
-  * Fraction of Reads in Peaks (FRiP) per sample 
+  * Fragment length distribution plot `fragment_len_dist.html`
+  * Fraction of Reads in Peaks (FRiP) per sample `frip.html`
+  * Report of the data with important metrics at alignment, peak calling, and DE steps `essential_report.html`. This includes 
 
-* Table of QC metrics per sample at the alignment, peak calling, and differential expression stage. 
+* Raw counts table of peaks (rows are intervals, columns are samples) `counts_table.txt`
 
-* Raw counts table of peaks (rows are intervals, columns are samples)
+* Read pileup tracks in bigwig format using CPM normalization `data/bw/*.bw`
 
-* Fraction of Reads in Peaks (FRiP) per sample
+* Differentially open chromatin regions for all unique combinations of conditions. Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
 
-* Read pileup tracks in bigwig format **in progress**
+  * PCA plot of all samples `data/de/sample_PCA.png`
+  * DESeq2-normalized and ln(DESeq2-normalized) counts `de/norm_counts.txt`, `de/log_norm_counts.txt`
+  * Significant peaks split by up and down-regulation `de/{contrast}/{contrast}-[up_sig|down_sig].bed`
+  * Heatmap of top 50 most differential regions `de/{contrast}/{contrast}-heatmap.pdf` 
 
-* Differentially open chromatin regions for all unique combinations of conditions.
+* Consensus peaks among _n_ replicates per condition (_n_ is configurable). This is in the `samples` folder. A peak is considered a consensus peak when it is in >= _n_ number of samples per condition. 
 
-  * Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
-
-* Consensus peaks among _n_ replicates (_n_ is configurable). This is in the `samples` folder. 
+  * For example, peak1 appears in 2 out of 3 replicates in condition1. If n = 2, then peak1 is considered a consensus peak, even if it does not appear in other conditions. 
+  * For example, peak2 appears in 1 out of 3 replicates in all conditions. If n = 2, then peak2 is not a consensus peak. 
 
   # Methods
 
 ![](rulegraph.svg).
 
 # References
-
