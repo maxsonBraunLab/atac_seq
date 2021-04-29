@@ -44,9 +44,7 @@ rule all:
 		directory("data/deseq2"),
 		"data/multiqc/multiqc_report.html",
 		# HOMER
-		directory("data/homer"),
-		# custom
-		"data/intervene/intervene_results/amleto_intersect_venn.png"
+		directory("data/homer")
 
 include: "rules/functions.py"
 include: "rules/qc.py"
