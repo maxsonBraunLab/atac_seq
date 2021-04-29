@@ -1,9 +1,8 @@
-name: deeptools
+name: macs2 
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - deeptools=3.5.0
-  - samtools=1.9
+  - macs2=2.2.7.1
 

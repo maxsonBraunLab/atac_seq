@@ -1,7 +1,7 @@
-name: fastqc
+name: homer
 channels:
   - defaults
   - bioconda
   - conda-forge
 dependencies:
-  - fastqc==0.11.9
+  - homer=4.11

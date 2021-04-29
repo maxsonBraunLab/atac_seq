@@ -1,8 +1,9 @@
-name: frip
+name: bowtie2
 channels:
   - bioconda
   - conda-forge
   - defaults
 dependencies:
-  - bedtools=2.29.2
-  - samtools=1.9
+  - bowtie2=2.4.2
+  - samtools=1.10
+

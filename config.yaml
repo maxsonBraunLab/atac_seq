@@ -1,65 +1,27 @@
-# Configuration file for ATAC-Seq
+# pipeline config ---------------------------------------------------------------------------------
 
-# quality control,  alignment, macs ----------------------------------------------------------
+# please adjust content of these files, though their paths should be constants.
+FASTQ_SCREEN_CONFIG: "data/config/fastq_screen_config.tsv"
+MULTIQC_CONFIG: "data/config/multiqc_config.yaml"
+DESEQ2_CONFIG: "data/config/deseq2_config.tsv"
 
-# sequencing adapters to trim in fasta format.
-ADAPTERS: "/home/groups/MaxsonLab/callahro/adapters/nextera_adapters.fasta"
+# read alignment + preprocessing ------------------------------------------------------------------
 
-# fasta file of genome for alignment.
-REFERENCE: "/home/groups/MaxsonLab/indices/GRch38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta"
+GENOME: "/home/groups/MaxsonLab/indices/mm10/mm10.fa"
+ASSEMBLY: "mm10" # [hg38, mm10]
 
-# fastq_screen config file
-FASTQ_SCREEN_CONF: "config/fastq_screen.conf"
+# Forbidden regions of the genome for read alignment and analysis
+BANLIST: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
 
-# effective size of the genome to be used for MACS peak calling
-# genome_size: "1.87e9" #mouse default size
-genome_size: "2.7e9" #human default genome size
+# peak calling ------------------------------------------------------------------------------------
 
-# consensus peaks catalogue ------------------------------------------------------------------
+# number of times a peak needs to appear across samples in one condition. helps build consensus peak.
+N_INTERSECTS: 2
 
-#The metadata file that has a mapping from sample name to condition. Columns must be 'SampleID' and 'Condition'. 
-metadata_file: "config/metadata.tsv"
+# size of the genome for macs2 peak calling
+GSIZE: "2.7e9"
 
-# select peaks that are in this many replicates per condition:
-n_intersects: 2
+# differential analysis ---------------------------------------------------------------------------
 
-#The location of the blacklist file that we will use to filter out regions that overlap a blacklist
-# blacklist_file: "/home/groups/MaxsonLab/indices/mm10/mm10.blacklist.v2.bed"
-blacklist_file: "/home/groups/MaxsonLab/indices/GRch38/hg38.blacklist.v2.bed"
-
-#the name of the genome that you are using for usage
-# genome_name: "mm10"
-genome_name: "hg38"
-
-# chip screen --------------------------------------------------------------------------------
-chrom_sizes: "/home/groups/MaxsonLab/indices/GRch38/hg38.sorted.chrom.sizes"
-
-# differential peaks -------------------------------------------------------------------------
-significance: 0.05
-
-# essential report ---------------------------------------------------------------------------
-gen_report: yes # [yes, no]
-
-title: "GSK x Quiz treatment with MOLM13 cells at 24 hours"
-authors:
-  - Dan Coleman
-  - Rowan Callahan
-  - Garth Kong
-  - Ted Braun
-  - Julia Maxson
-  - et al.
-
-intro: "We are looking to do some drug combination studies with GSK and Quizartinib to treat MOLM13 cells which have FLT3-ITD mutations."
-
-analysis:
-  - "Trim reads via trimmomatic and align to genome using bowtie2."
-  - "Remove mitochondrial reads, remove PCR duplicate reads, shift reads, and make tracks."
-  - "Call peaks, take consensus peaks, and make the counts table."
-  - "Differential analysis via DESeq2 with Condition as variable."
-
-takeaways:
-  - "takeaway 1"
-  - "takeaway 2"
-  - "takeaway 3"
-
-notes: "We answered these questions, and look forward to answering more."
+# filter for results with pval less than <padj_cutoff>
+padj_cutoff: 0.05

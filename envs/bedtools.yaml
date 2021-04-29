@@ -1,9 +1,8 @@
-name: deeptools
+name: bedtools
 channels:
-  - conda-forge
   - bioconda
   - defaults
+  - anaconda
 dependencies:
-  - deeptools=3.5.0
+  - bedtools=2.30.0
   - samtools=1.9
-
