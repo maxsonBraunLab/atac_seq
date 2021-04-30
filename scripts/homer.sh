@@ -45,11 +45,11 @@ log_file_exists() {
 }
 
 # import contrast_combinations.txt
-while IFS=$'\t' read contrast_1 contrast_2
+while IFS=$'\t' read condition_1 condition_2
 do
 
 	# define contrast
-	contrast=$(echo "$contrast_1-vs-$contrast_2")
+	contrast=$(echo "$condition_1-vs-$condition_2")
 
 	# define up and downregulated input intervals and log files
 	up_peaks=$(echo "data/deseq2/$contrast/$contrast-up_sig.bed")
