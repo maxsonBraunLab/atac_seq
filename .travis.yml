@@ -22,9 +22,10 @@ install:
   - wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
   - gunzip Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
   - mv Homo_sapiens.GRCh38.dna.chromosome.1.fa testdata
-  - bwa index -p testdata/hg38_chr1 Homo_sapiens.GRCh38.dna.chromosome.1.fa
+  - bwa index -p testdata/hg38_chr1 testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa
 
 script:
   - source activate snakemake
   - snakemake -j 1 --use-conda -np > dry_run.txt
   - cat dry_run.txt
+  - snakemake -j 8 --use-conda
