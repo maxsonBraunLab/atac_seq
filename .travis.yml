@@ -2,10 +2,10 @@ language: python
 python: "3.6"
 
 # cache conda and bwa index
-cache:
-  directories:
-    - testdata
-    - $HOME/miniconda
+# cache:
+#   directories:
+#     - testdata
+#     - $HOME/miniconda
 
 install:
   # download and install miniconda
