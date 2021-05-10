@@ -14,9 +14,7 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda config --add channels plotly
-  # - sudo apt-get install -y r-base
-  # - echo 'source("https://bioconductor.org/biocLite.R"); biocLite("S4Vectors"); biocLite("GenomicRanges")' > install.R
-  - conda create -q -n snakemake snakemake>=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17 plotly
+  - conda create -q -n snakemake snakemake=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17 plotly
   - source activate snakemake
   - conda list
   - conda info -a
