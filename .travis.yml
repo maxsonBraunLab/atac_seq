@@ -17,9 +17,9 @@ install:
   # - sudo apt-get install -y r-base
   # - echo 'source("https://bioconductor.org/biocLite.R"); biocLite("S4Vectors"); biocLite("GenomicRanges")' > install.R
   - conda create -q -n snakemake snakemake>=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17 plotly
-  - conda activate snakemake
+  - source activate snakemake
   - conda list
-  - conda info
+  - conda info -a
   # download hg38 chr1 and make bwa index (too big to live in git)
   - mkdir testdata
   - wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
@@ -28,7 +28,7 @@ install:
   - bwa index -p testdata/hg38_chr1 testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa
 
 script:
-  - conda activate snakemake
+  - source activate snakemake
   - snakemake -j 1 --use-conda -np > dry_run.txt
   - cat dry_run.txt
   - snakemake -j 8 --use-conda
