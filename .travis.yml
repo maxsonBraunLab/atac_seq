@@ -10,11 +10,12 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda config --add channels defaults
-  - conda config --add channels conda-forge
-  - conda config --add channels bioconda
-  - conda config --add channels plotly
-  - conda create -q -n snakemake snakemake=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17 plotly
+  - conda env create -f .test/snakemake-test.yaml
+  # - conda config --add channels defaults
+  # - conda config --add channels conda-forge
+  # - conda config --add channels bioconda
+  # - conda config --add channels plotly
+  # - conda create -q -n snakemake snakemake=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17 plotly
   - source activate snakemake
   - conda list
   - conda info -a
