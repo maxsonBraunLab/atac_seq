@@ -1,0 +1,13 @@
+# ignore indices for test data
+.test/testdata/hg38_chr1.amb
+.test/testdata/hg38_chr1.ann
+.test/testdata/hg38_chr1.bwt
+.test/testdata/hg38_chr1.pac
+.test/testdata/hg38_chr1.sa
+Homo_sapiens.GRCh38.dna.chromosome.1.fa
+.test/testdata/preparsed/*
+.test/.snakemake/*
+.test/data/raw/*norun
+
+# else
+.snakemake/*

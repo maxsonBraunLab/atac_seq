@@ -1,0 +1,30 @@
+language: python
+python: "3.6"
+
+install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda config --add channels defaults
+  - conda config --add channels conda-forge
+  - conda config --add channels bioconda
+  # - sudo apt-get install -y r-base
+  # - echo 'source("https://bioconductor.org/biocLite.R"); biocLite("S4Vectors"); biocLite("GenomicRanges")' > install.R
+  - conda create -q -n snakemake snakemake>=5.11 python=$TRAVIS_PYTHON_VERSION bwa=0.7.17
+  - source activate snakemake
+  # download hg38 chr1 and make bwa index (too big to live in git)
+  - mkdir testdata
+  - wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
+  - gunzip Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
+  - mv Homo_sapiens.GRCh38.dna.chromosome.1.fa testdata
+  - bwa index -p testdata/hg38_chr1 Homo_sapiens.GRCh38.dna.chromosome.1.fa
+
+script:
+  - source activate snakemake
+  - snakemake -j 1 --use-conda -np > dry_run.txt
+  - cat dry_run.txt

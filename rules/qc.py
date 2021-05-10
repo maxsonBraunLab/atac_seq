@@ -16,7 +16,7 @@ rule fastp:
 	threads: 8
 	shell:
 		"fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} "
-		"--detect_adapter_for_pe --thread {threads} -j {log}"
+		"--detect_adapter_for_pe --thread {threads} -j {log} -h /dev/null"
 
 rule fastqc:
 	input:

@@ -15,6 +15,8 @@ rule deseq2:
 	conda:
 		"../envs/deseq2.yaml"
 	threads: 8
+	log:
+		"data/logs/deseq2.log"
 	script:
 		"../scripts/deseq2.R"
 
@@ -24,7 +26,7 @@ rule HOMER:
 	output:
 		directory("data/homer")
 	params:
-		genome = config["GENOME"]
+		genome = config["FASTA"]
 	log:
 		"data/logs/homer.log"
 	conda:

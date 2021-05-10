@@ -1,8 +1,7 @@
 rule bwa:
 	input:
 		r1 = rules.fastp.output.r1,
-		r2 = rules.fastp.output.r2,
-		genome = config["GENOME"]
+		r2 = rules.fastp.output.r2
 	output:
 		temp("data/bwa/{sample}.sorted.bam")
 	conda:
@@ -11,7 +10,7 @@ rule bwa:
 		"data/logs/bwa_{sample}.log"
 	threads: 8
 	shell:
-		"bwa mem -t {threads} {input.genome} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -m 4G -o {output} -"
+		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -m 4G -o {output} -"
 
 rule mito:
 	input:
