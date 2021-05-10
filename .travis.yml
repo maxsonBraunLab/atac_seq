@@ -22,7 +22,7 @@ install:
   - bwa index -p testdata/hg38_chr1 testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa
 
 script:
-  - source activate snakemake
+  - source activate snakemake-test
   - snakemake -j 1 --use-conda -np > dry_run.txt
   - cat dry_run.txt
   - snakemake -j 8 --use-conda
