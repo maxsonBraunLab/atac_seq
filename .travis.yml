@@ -9,7 +9,7 @@ cache:
 
 install:
   # download and install miniconda
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - wget -nc https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -23,7 +23,7 @@ install:
   - conda info -a
   # download hg38 chr1 and make bwa index (too big to live in git)
   - mkdir testdata
-  - wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
+  - wget -nc http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
   - gunzip Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
   - mv Homo_sapiens.GRCh38.dna.chromosome.1.fa testdata
   - bwa index -p testdata/hg38_chr1 testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa
