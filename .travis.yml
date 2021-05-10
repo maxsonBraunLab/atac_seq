@@ -23,6 +23,5 @@ install:
 
 script:
   - source activate snakemake-test
-  - snakemake -j 1 --use-conda -np > dry_run.txt
-  - cat dry_run.txt
-  - snakemake -j 8 --use-conda
+  - snakemake -j 1 -d .test/ --use-conda -np
+  - snakemake -j 8 -d .test/ --use-conda
