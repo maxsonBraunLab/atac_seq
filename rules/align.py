@@ -10,7 +10,7 @@ rule bwa:
 		"data/logs/bwa_{sample}.log"
 	threads: 8
 	shell:
-		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -m 4G -o {output} -"
+		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -o {output} -"
 
 rule mito:
 	input:
@@ -25,7 +25,7 @@ rule mito:
 	shell:
 		"""
 		with_mito=$(samtools view -@ {threads} -c {input})
-		samtools view -h {input} | grep -v chrM | samtools sort -@ {threads} -m 4G > {output}
+		samtools view -h {input} | grep -v chrM | samtools sort -@ {threads} > {output}
 		without_mito=$(samtools view -@ {threads} -c {output})
 		echo -e "{wildcards.sample}\n$with_mito\n$without_mito" > {params.mito}
 		"""
@@ -115,7 +115,7 @@ rule sort:
 		"../envs/bwa.yaml"
 	threads: 4
 	shell:
-		"samtools sort -@ {threads} -m 4G -o {output} {input}"
+		"samtools sort -@ {threads} -o {output} {input}"
 
 rule index:
 	input:
