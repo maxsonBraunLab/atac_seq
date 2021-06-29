@@ -22,7 +22,7 @@ rule fastqc:
 	input:
 		"data/raw/{read}.fastq.gz"
 	output:
-		"data/fastqc/{read}.html"
+		"data/fastqc/{read}_fastqc.html"
 	conda:
 		"../envs/fastqc.yaml"
 	log:

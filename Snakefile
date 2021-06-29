@@ -32,7 +32,7 @@ rule all:
 	input:
 		# quality control
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
-		expand("data/fastqc/{reads}.html", reads = all_reads),
+		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
 		# expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES),
 		"data/fraglen.html",
