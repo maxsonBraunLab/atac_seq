@@ -26,7 +26,7 @@ rule HOMER:
 	output:
 		directory("data/homer")
 	params:
-		genome = config["FASTA"]
+		genome = config["GENOME"]
 	log:
 		"data/logs/homer.log"
 	conda:
