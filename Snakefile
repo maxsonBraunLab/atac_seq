@@ -2,6 +2,7 @@
 
 import os
 import sys
+import glob
 import pandas as pd
 import plotly as plt
 import plotly.graph_objects as go
@@ -22,13 +23,16 @@ configfile: "config.yaml"
 if not os.path.isdir("data/stats"):
 	os.mkdir("data/stats")
 
+all_samples = glob.glob("data/raw/*.fastq.gz")
+all_reads = [os.path.basename(i).split(".")[0] for i in all_samples]
+
 localrules: fraglength_plot, FRiP, counts_table, multiqc
 
 rule all:
 	input:
 		# quality control
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
-		# expand("data/fastqc/{sample}_{read}_fastqc.html", sample = SAMPLES, read = ["R1", "R2"]),
+		expand("data/fastqc/{reads}.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
 		# expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES),
 		"data/fraglen.html",

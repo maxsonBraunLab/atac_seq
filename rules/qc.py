@@ -20,7 +20,7 @@ rule fastp:
 
 rule fastqc:
 	input:
-		"data/fastp/{read}.fastq.gz"
+		"data/raw/{read}.fastq.gz"
 	output:
 		"data/fastqc/{read}.html"
 	conda:
