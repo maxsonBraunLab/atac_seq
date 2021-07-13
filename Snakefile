@@ -46,6 +46,7 @@ rule all:
 		"data/counts/counts_table.txt",
 		# differential
 		directory("data/deseq2"),
+		directory("data/diffbind"),
 		"data/multiqc/multiqc_report.html",
 		# HOMER
 		directory("data/homer")
