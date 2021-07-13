@@ -57,7 +57,7 @@ for (i in 1:nrow(dba_meta)) {
 		dba_intervals %>% write.table(., all_sig, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 		upregulated_intervals %>% write.table(., up_output, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 		downregulated_intervals %>% write.table(., dn_output, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-		upregulated_intervals %>% select(seqnames, start, end) %>% write.table(., up_bed, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-		upregulated_intervals %>% select(seqnames, start, end) %>% write.table(., dn_bed, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+		upregulated_intervals %>% select(seqnames, start, end) %>% write.table(., up_bed, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+		upregulated_intervals %>% select(seqnames, start, end) %>% write.table(., dn_bed, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
 	}
 }
