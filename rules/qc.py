@@ -20,7 +20,7 @@ rule fastp:
 
 rule fastqc:
 	input:
-		"data/raw/{read}.fastq.gz"
+		"data/fastp/{read}.fastq.gz"
 	output:
 		"data/fastqc/{read}_fastqc.html"
 	conda:
@@ -76,13 +76,13 @@ rule preseq_lcextrap:
 
 rule fraglength:
 	input:
-		"data/shift/{sample}.shifted.filtered.markd.sorted.bam"
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
 	output:
 		"data/stats/{sample}.fraglen.txt"
 	conda:
 		"../envs/bowtie2.yaml"
 	shell:
-		"samtools view {input} | cut -f9 | awk '$1 > 0 && $1 < 1000' | sort -S 4G | uniq -c | sort -b -k2,2n | awk '{{print $2, $1}}' > {output}"
+		"samtools view {input} | awk '$9>0 && $9 < 1000' | cut -f 9 | sort | uniq -c | sort -b -k2,2n | awk -v OFS='\t' '{{print $2,$1}}' > {output}"
 
 rule fraglength_plot:
 	input:
@@ -94,7 +94,7 @@ rule fraglength_plot:
 		dfs = []
 		for i in input:
 			sample = [os.path.basename(i).split(".")[0]]
-			temp_df = pd.read_csv(i, sep = " ", index_col = 0, names = sample)
+			temp_df = pd.read_csv(i, sep = "\t", index_col = 0, names = sample)
 			dfs.append(temp_df)
 		df = pd.concat(dfs, axis = 1)
 		fraglen = df.plot()
@@ -112,7 +112,7 @@ rule fraglength_plot:
 rule FRiP_count:
 	input:
 		consensus = "data/macs2/consensus_peaks.bed",
-		sample = "data/shift/{sample}.shifted.filtered.markd.sorted.bam"
+		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
 	output:
 		"data/stats/{sample}.frip.txt"
 	conda:
@@ -120,7 +120,7 @@ rule FRiP_count:
 	shell:
 		"""
 		all_reads=$(samtools view -c {input.sample})
-		rip=$(bedtools intersect -u -a {input.sample} -b {input.consensus} -ubam | samtools view -c)
+		rip=$(bedtools intersect -u -a {input.sample} -b {input.consensus} -ubam | wc -l)
 		echo -e "{wildcards.sample}\n$all_reads\n$rip" > {output}
 		"""
 
@@ -154,10 +154,13 @@ rule FRiP:
 
 rule multiqc:
 	input:
-		directory("data/deseq2")
+		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
+		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
+		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
+		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES)
 	output:
 		"data/multiqc/multiqc_report.html"
 	conda:
 		"../envs/multiqc.yaml"
 	shell:
-		"multiqc -f data/ -o data/multiqc"
+		"multiqc -f data/ -o data/multiqc --ignore data/homer"

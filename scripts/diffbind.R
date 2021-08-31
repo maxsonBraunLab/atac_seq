@@ -1,3 +1,5 @@
+sink(file("data/logs/diffbind.log", open = "wt"), type = "message")
+
 library(DiffBind)
 library(rtracklayer)
 library(GenomicRanges)
@@ -21,6 +23,8 @@ ATAC <- dba.analyze(ATAC)
 
 # loop through all contrasts and export results
 dba_meta <- dba.show(ATAC, bContrasts=TRUE)
+dba_meta[,c("Group", "Group2")] %>%
+	write.table(., snakemake@output[["contrast_combinations"]], sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
 
 # save.image()
 for (i in 1:nrow(dba_meta)) {

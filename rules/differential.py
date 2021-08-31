@@ -16,24 +16,26 @@ rule deseq2:
 		"../envs/deseq2.yaml"
 	threads: 8
 	log:
-		"data/logs/deseq2.log"
+		out = "data/logs/deseq2.log"
 	script:
 		"../scripts/deseq2.R"
 # normalize by reads in peaks
 
 rule diffbind:
-        input:
-                consensus_peaks = "data/macs2/consensus_peaks.bed",
-                metadata = config["DIFFBIND_CONFIG"]
-        params:
-                padj_cutoff = config["padj_cutoff"]
-        output:
-                directory("data/diffbind")
-        conda:
-                "../envs/diffbind.yaml"
-        threads: 8
-        script:
-                "../scripts/diffbind.R"
+	input:
+		consensus_peaks = "data/macs2/consensus_peaks.bed",
+		metadata = config["DIFFBIND_CONFIG"]
+	params:
+		padj_cutoff = config["padj_cutoff"]
+	output:
+		directory("data/diffbind")
+	conda:
+		"../envs/diffbind.yaml"
+	threads: 8
+	log:
+		"data/logs/diffbind.log"
+	script:
+		"../scripts/diffbind.R"
 # normalize by entire sequencing depth
 
 rule HOMER:

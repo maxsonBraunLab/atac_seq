@@ -38,18 +38,18 @@ rule all:
 		"data/fraglen.html",
 		"data/frip.html",
 		# read alignment
-		expand("data/shift/{sample}.shifted.filtered.markd.sorted.bam", sample = SAMPLES),
+		expand("data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam", sample = SAMPLES),
 		expand("data/bigwig/{sample}.bw", sample = SAMPLES),
 		# peak calling
 		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
 		"data/macs2/consensus_peaks.bed",
 		"data/counts/counts_table.txt",
 		# differential
-		directory("data/deseq2"),
-		directory("data/diffbind"),
+		"data/deseq2",
+		"data/diffbind",
 		"data/multiqc/multiqc_report.html",
 		# HOMER
-		directory("data/homer")
+		"data/homer"
 
 include: "rules/functions.py"
 include: "rules/qc.py"

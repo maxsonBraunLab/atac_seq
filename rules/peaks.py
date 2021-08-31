@@ -1,7 +1,7 @@
 rule macs2:
 	input:
-		bam = "data/shift/{sample}.shifted.filtered.markd.sorted.bam",
-		bai = "data/shift/{sample}.shifted.filtered.markd.sorted.bam.bai"
+		bam = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		bai = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
 	output:
 		"data/macs2/{sample}/{sample}_peaks.broadPeak"
 	conda:
@@ -31,7 +31,7 @@ rule consensus:
 rule counts:
 	input:
 		consensus = rules.consensus.output,
-		sample = "data/shift/{sample}.shifted.filtered.markd.sorted.bam"
+		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
 	output:
 		"data/multicov/{sample}.txt"
 	conda:
@@ -52,13 +52,3 @@ rule counts_table:
 		df = pd.concat(dfs, axis = 1)
 		df = df.loc[:,~df.columns.duplicated()]
 		df.to_csv(str(output), header = True, index = False, sep = "\t")
-
-rule intervene:
-	input:
-		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES)
-	output:
-		"data/intervene/intervene_results/amleto_intersect_venn.png"
-	conda:
-		"../envs/intervene.yaml"
-	shell:
-		"bash scripts/intervene.sh"

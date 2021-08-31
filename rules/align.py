@@ -12,126 +12,60 @@ rule bwa:
 	shell:
 		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -o {output} -"
 
-rule mito:
+rule filter:
 	input:
 		rules.bwa.output
 	output:
-		temp("data/mito/{sample}.mito.sorted.bam")
-	params:
-		mito = "data/stats/{sample}.mito.txt"
+		temp("data/filter/{sample}.filtered.sorted.bam")
 	conda:
 		"../envs/bwa.yaml"
 	threads: 4
 	shell:
-		"""
-		with_mito=$(samtools view -@ {threads} -c {input})
-		samtools view -h {input} | grep -v chrM | samtools sort -@ {threads} > {output}
-		without_mito=$(samtools view -@ {threads} -c {output})
-		echo -e "{wildcards.sample}\n$with_mito\n$without_mito" > {params.mito}
-		"""
+		"samtools view -@ {threads} -h -F 1804 -f 2 {input[0]} | "
+		"grep -v chrM | samtools sort -@ {threads} > {output}"
 
-rule markdup:
+# -F 1804 = filter away away 1804
+# 	read paired (1), read unmapped (4),
+# 	mate unmapped (8), not in primary alignment (100),
+# 	read fails platform (200)
+# 	no duplicate reads
+# -f 2 = filter for paired-end reads
+
+rule rmdup:
 	input:
-		rules.mito.output
+		rules.filter.output
 	output:
-		temp("data/markd/{sample}.markd.sorted.bam"),
-		temp("data/markd/{sample}.markd.sorted.bam.bai")
+		temp("data/rmdup/{sample}.rmdup.sorted.bam"),
+		temp("data/rmdup/{sample}.rmdup.sorted.bam.bai")
 	params:
 		dup = "data/stats/{sample}.dup.txt"
 	conda:
 		"../envs/sambamba.yaml"
 	log:
-		"data/logs/markdup_{sample}.log"
+		"data/logs/rmdup_{sample}.log"
 	threads: 4 
 	shell:
-		"""
-		with_dup=$(samtools view -@ {threads} -c {input})
-		sambamba markdup -r -t {threads} --tmpdir=data/markd --io-buffer-size=512 {input} {output[0]} > {log} 2>&1
-		without_dup=$(samtools view -@ {threads} -c {output[0]})
-		echo -e "{wildcards.sample}\n$with_dup\n$without_dup" > {params.dup}
-		"""
-
-rule quality:
-	input:
-		rules.markdup.output
-	output:
-		temp("data/quality/{sample}.filtered.markd.sorted.bam")
-	params:
-		quality = "data/stats/{sample}.quality.txt"
-	conda:
-		"../envs/bwa.yaml"
-	threads: 4
-	shell:
-		"""
-		all_reads=$(samtools view -@ {threads} -c {input[0]})
-		samtools view -@ {threads} -h -b -F 1804 -f 2 {input[0]} -o {output}
-		quality_reads=$(samtools view -@ {threads} -c {output})
-		echo -e "{wildcards.sample}\n$all_reads\n$quality_reads" > {params.quality}
-		"""
-# filter away (1804) =
-# 	read paired (1), read unmapped (4),
-# 	mate unmapped (8), not in primary alignment (100),
-# 	read fails platform (200)
-# 	no duplicate reads
+		"sambamba markdup -r -t {threads} --tmpdir=data/rmdup --io-buffer-size=512 {input} {output[0]} > {log} 2>&1"
 
 rule banlist:
 	input:
-		bam = rules.quality.output,
+		bam = rules.rmdup.output[0],
 		banlist = config["BANLIST"]
 	output:
-		"data/banlist/{sample}.banlist.filtered.markd.sorted.bam",
-		"data/banlist/{sample}.banlist.filtered.markd.sorted.bam.bai"
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
 	params:
 		banlist = "data/stats/{sample}.banlist.txt"
 	conda:
 		"../envs/bedtools.yaml"
 	threads: 4
 	shell:
-		"""
-		all_reads=$(samtools view -@ {threads} -c {input.bam})
-		bedtools intersect -v -a {input.bam} -b {input.banlist} > {output[0]}
-		samtools index {output[0]}
-		good_reads=$(samtools view -@ {threads} -c {output[0]})
-		echo -e "{wildcards.sample}\n$all_reads\n$good_reads" > {params.banlist}
-		"""
-
-rule shift:
-	input:
-		rules.banlist.output[0]
-	output:
-		temp("data/shift/{sample}.shifted.filtered.markd.bam")
-	conda:
-		"../envs/deeptools.yaml"
-	threads: 4
-	shell:
-		"alignmentSieve -b {input} -o {output} -p {threads} --ATACshift"
-
-rule sort:
-	input:
-		rules.shift.output
-	output:
-		"data/shift/{sample}.shifted.filtered.markd.sorted.bam"
-	conda:
-		"../envs/bwa.yaml"
-	threads: 4
-	shell:
-		"samtools sort -@ {threads} -o {output} {input}"
-
-rule index:
-	input:
-		rules.sort.output
-	output:
-		"data/shift/{sample}.shifted.filtered.markd.sorted.bam.bai"
-	conda:
-		"../envs/bwa.yaml"
-	threads: 4
-	shell:
-		"samtools index -@ {threads} {input}"
+		"bedtools intersect -v -a {input.bam} -b {input.banlist} > {output[0]}; samtools index {output[0]}"
 
 rule bigwig:
 	input:
-		bam = rules.sort.output,
-		bai = rules.index.output
+		bam = rules.banlist.output[0],
+		bai = rules.banlist.output[1]
 	output:
 		"data/bigwig/{sample}.bw"
 	conda:
