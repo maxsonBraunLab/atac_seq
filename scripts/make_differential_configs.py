@@ -12,6 +12,10 @@ def main():
 
 	samples = sorted(glob.glob("data/raw/*.fastq.gz"))
 
+	if len(samples) == 0:
+		print("ERROR: No samples (ending in .fastq.gz format) found in data/raw.")
+		sys.exit()
+
 	df = pd.DataFrame(samples, columns = ["file"])
 	df["sample"] = df.file.apply(lambda x: os.path.basename(x).split(".")[0].replace("_R1", "").replace("_R2", ""))
 	df["condition"] = df["sample"].apply(lambda x: x.split("_")[0])
