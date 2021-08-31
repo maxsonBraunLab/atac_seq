@@ -20,13 +20,10 @@ for i in SAMPLES:
 
 configfile: "config.yaml"
 
-if not os.path.isdir("data/stats"):
-	os.mkdir("data/stats")
-
 all_samples = glob.glob("data/raw/*.fastq.gz")
 all_reads = [os.path.basename(i).split(".")[0] for i in all_samples]
 
-localrules: fraglength_plot, FRiP, counts_table, multiqc
+localrules: fraglength_plot, FRiP, counts_table, multiqc, HOMER
 
 rule all:
 	input:

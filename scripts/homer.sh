@@ -76,15 +76,15 @@ do
 	if [ "$up_peaks_count" -lt 10 ]; then
 		echo "ERROR: $up_peaks had less than 10 DE intervals."
 	else
-		echo "Running HOMER for $up_peaks_count $up_peaks"
-		findMotifsGenome.pl "$up_peaks" "$g" data/homer/"$contrast"-up -size 200 > "$up_log" &
+		echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
+		sbatch --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
 	fi
 
 	if [ "$dn_peaks_count" -lt 10 ]; then
 		echo "ERROR: $dn_peaks had less than 10 DE intervals."
 	else
-		echo "Running HOMER for $dn_peaks_count $dn_peaks"
-		findMotifsGenome.pl "$dn_peaks" "$g" data/homer/"$contrast"-down -size 200 > "$dn_log" 2>&1 &
+		echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
+		sbatch --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
 	fi
 
 done < $i
