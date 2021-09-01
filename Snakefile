@@ -18,6 +18,12 @@ def message(msg):
 for i in SAMPLES:
 	message("Processing " + i)
 
+def defect_mode(wildcards, attempt):
+	if attempt == 1:
+		return ""
+	elif attempt > 1:
+		return "-D"
+
 configfile: "config.yaml"
 
 all_samples = glob.glob("data/raw/*.fastq.gz")
@@ -27,7 +33,7 @@ localrules: fraglength_plot, FRiP, counts_table, multiqc, homer
 
 rule all:
 	input:
-		# quality control -------------------------------------------------------------------------
+		# quality control -----------------------------------------------------------------
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
@@ -36,20 +42,340 @@ rule all:
 		"data/multiqc/multiqc_report.html",
 		"data/fraglen.html",
 		"data/frip.html",
-		# read alignment --------------------------------------------------------------------------
+		# read alignment ------------------------------------------------------------------
 		expand("data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam", sample = SAMPLES),
 		expand("data/bigwig/{sample}.bw", sample = SAMPLES),
-		# peak calling ----------------------------------------------------------------------------
+		# peak calling --------------------------------------------------------------------
 		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
 		"data/macs2/consensus_peaks.bed",
 		"data/counts/counts_table.txt",
-		# differential ----------------------------------------------------------------------------
+		# differential --------------------------------------------------------------------
 		"data/deseq2",
 		"data/diffbind",
 		"data/homer"
 
-include: "rules/functions.py"
-include: "rules/qc.py"
-include: "rules/align.py"
-include: "rules/peaks.py"
-include: "rules/differential.py"
+# pre-processing ----------------------------------------------------------------------------------
+
+rule fastp:
+	input:
+		r1 = "data/raw/{sample}_R1.fastq.gz",
+		r2 = "data/raw/{sample}_R2.fastq.gz"
+	output:
+		r1 = "data/fastp/{sample}_R1.fastq.gz",
+		r2 = "data/fastp/{sample}_R2.fastq.gz"
+	conda:
+		"envs/fastp.yaml"
+	log:
+		"data/logs/{sample}.fastp.json"
+	threads: 8
+	shell:
+		"fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} "
+		"--detect_adapter_for_pe --thread {threads} -j {log} -h /dev/null"
+
+rule fastqc:
+	input:
+		"data/fastp/{read}.fastq.gz"
+	output:
+		"data/fastqc/{read}_fastqc.html"
+	conda:
+		"envs/fastqc.yaml"
+	log:
+		"data/logs/fastqc_{read}.log"
+	threads: 4
+	shell:
+		"fastqc -t {threads} --outdir data/fastqc {input} > {log} 2>&1"
+
+rule fastq_screen:
+	input:
+		fastq = "data/fastp/{read}.fastq.gz",
+		config = config["FASTQ_SCREEN_CONFIG"]
+	output:
+		"data/fastq_screen/{read}_screen.txt"
+	conda:
+		"envs/fastq_screen.yaml"
+	log:
+		"data/logs/fastq_screen_{read}.txt"
+	threads: 8
+	shell:
+		"fastq_screen --aligner bowtie2 --threads {threads} --outdir data/fastq_screen "
+		"--conf {input.config} --force {input.fastq} > {log} 2>&1"
+
+rule bwa:
+	input:
+		r1 = rules.fastp.output.r1,
+		r2 = rules.fastp.output.r2
+	output:
+		temp("data/bwa/{sample}.sorted.bam")
+	conda:
+		"envs/bwa.yaml"
+	log:
+		"data/logs/bwa_{sample}.log"
+	threads: 8
+	shell:
+		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} > {output}"
+
+rule filter:
+	input:
+		rules.bwa.output
+	output:
+		temp("data/filter/{sample}.filtered.sorted.bam")
+	conda:
+		"envs/bwa.yaml"
+	threads: 4
+	shell:
+		"samtools view -@ {threads} -h -F 1804 -f 2 {input[0]} | "
+		"grep -v chrM | samtools sort -@ {threads} > {output}"
+
+# -F 1804 = filter away away 1804
+# 	read paired (1), read unmapped (4),
+# 	mate unmapped (8), not in primary alignment (100),
+# 	read fails platform (200)
+# 	no duplicate reads
+# -f 2 = filter for paired-end reads
+
+rule rmdup:
+	input:
+		rules.filter.output
+	output:
+		temp("data/rmdup/{sample}.rmdup.sorted.bam"),
+		temp("data/rmdup/{sample}.rmdup.sorted.bam.bai")
+	params:
+		dup = "data/stats/{sample}.dup.txt"
+	conda:
+		"envs/sambamba.yaml"
+	log:
+		"data/logs/rmdup_{sample}.log"
+	threads: 4 
+	shell:
+		"sambamba markdup -r -t {threads} --tmpdir=data/rmdup --io-buffer-size=512 {input} {output[0]} > {log} 2>&1"
+
+rule banlist:
+	input:
+		bam = rules.rmdup.output[0],
+		banlist = config["BANLIST"]
+	output:
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
+	params:
+		banlist = "data/stats/{sample}.banlist.txt"
+	conda:
+		"envs/bedtools.yaml"
+	threads: 4
+	shell:
+		"bedtools intersect -v -ubam -abam {input.bam} -b {input.banlist} | samtools sort -@ {threads} > {output[0]}; samtools index {output[0]}"
+
+rule bigwig:
+	input:
+		bam = rules.banlist.output[0],
+		bai = rules.banlist.output[1]
+	output:
+		"data/bigwig/{sample}.bw"
+	conda:
+		"envs/deeptools.yaml"
+	threads: 16
+	shell:
+		"bamCoverage -b {input.bam} -o {output} -p {threads} --skipNAs --binSize 10 --smoothLength 50 --normalizeUsing CPM"
+
+rule fraglength:
+	input:
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
+	output:
+		"data/stats/{sample}.fraglen.txt"
+	conda:
+		"envs/bowtie2.yaml"
+	shell:
+		"samtools view {input} | awk '$9>0 && $9 < 1000' | cut -f 9 | sort | uniq -c | sort -b -k2,2n | awk -v OFS='\t' '{{print $2,$1}}' > {output}"
+
+rule fraglength_plot:
+	input:
+		expand("data/stats/{sample}.fraglen.txt", sample = SAMPLES)
+	output:
+		"data/fraglen.html"
+	run:
+		pd.options.plotting.backend = "plotly"
+		dfs = []
+		for i in input:
+			sample = [os.path.basename(i).split(".")[0]]
+			temp_df = pd.read_csv(i, sep = "\t", index_col = 0, names = sample)
+			dfs.append(temp_df)
+		df = pd.concat(dfs, axis = 1)
+		fraglen = df.plot()
+		fraglen.update_layout( 
+			title='Fragment Length Distribution', 
+			xaxis_title='Fragment Length (bp)', 
+			yaxis_title='Counts', 
+			legend_title_text='Samples')
+		fraglen.write_html(str(output))
+
+# more like fraction of reads in consensus peaks
+rule FRiP_count:
+	input:
+		consensus = "data/macs2/consensus_peaks.bed",
+		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
+	output:
+		"data/stats/{sample}.frip.txt"
+	conda:
+		"envs/bedtools.yaml"
+	shell:
+		"""
+		all_reads=$(samtools view -c {input.sample})
+		rip=$(bedtools intersect -u -a {input.sample} -b {input.consensus} -ubam | wc -l)
+		echo -e "{wildcards.sample}\n$all_reads\n$rip" > {output}
+		"""
+
+rule FRiP:
+	input:
+		expand("data/stats/{sample}.frip.txt", sample = SAMPLES)
+	output:
+		"data/frip.html"
+	run:
+		pd.options.plotting.backend = "plotly"
+		dfs = []
+		for i in input:
+			# sample = [os.path.basename(i).split(".")[0]]
+			temp_df = pd.read_csv(i, sep = " ")
+			dfs.append(temp_df)
+		df = pd.concat(dfs, axis = 1)
+		df = df.rename(index={0: 'total_reads', 1: 'reads_in_peaks'})
+		df.loc['ratio'] = df.loc['reads_in_peaks'] / df.loc['total_reads']
+
+		# plot graph. plot ratio as bottom as percent, and plot to max value of 1.
+		fig = go.Figure(data=[
+			go.Bar(name='inside_peaks', x=df.columns, y=df.loc['ratio'], marker_color='rgb(255,201,57)'),
+			go.Bar(name='outside_peaks', x=df.columns, y= ([1] * df.shape[1]) - df.loc['ratio'], marker_color='rgb(0,39,118)')])
+		# Change the bar mode
+		fig.update_layout(barmode='stack', title='Fraction of Reads in Peaks by Sample', xaxis_tickfont_size=14,
+			yaxis=dict(title='Fraction of reads in peaks', titlefont_size=16, tickfont_size=14),
+			xaxis=dict(title='Samples'))
+		fig.write_html(str(output))
+
+# peak calling ------------------------------------------------------------------------------------
+
+rule macs2:
+	input:
+		bam = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		bai = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
+	output:
+		"data/macs2/{sample}/{sample}_peaks.broadPeak"
+	conda:
+		"envs/macs2.yaml"
+	params:
+		outdir = "data/macs2/{sample}",
+		genome_size = config["GSIZE"]
+	log:
+		"data/logs/macs2_{sample}.log"
+	shell:
+		"macs2 callpeak -t {input.bam} -n {wildcards.sample} "
+		"--format BAMPE --gsize {params.genome_size} "
+		"--outdir {params.outdir} --broad > {log} 2>&1"
+
+rule consensus:
+	input:
+		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES)
+	output:
+		"data/macs2/consensus_peaks.bed"
+	params:
+		n_intersects = config["N_INTERSECTS"]
+	conda:
+		"envs/consensus.yaml"
+	script:
+		"scripts/consensus_peaks.R"
+
+rule counts:
+	input:
+		consensus = rules.consensus.output,
+		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
+	output:
+		"data/multicov/{sample}.txt"
+	conda:
+		"envs/bedtools.yaml"
+	shell:
+		"bedtools multicov -bams {input.sample} -bed {input.consensus} > {output}"
+
+rule counts_table:
+	input:
+		expand("data/multicov/{sample}.txt", sample = SAMPLES)
+	output:
+		"data/counts/counts_table.txt"
+	run:
+		dfs = []
+		for file in list(input):
+			sample_name = os.path.basename(file).split('.')[0]
+			dfs.append( pd.read_csv(file, sep = "\t", names = ["chr", "start", "end", "name", sample_name]) )
+		df = pd.concat(dfs, axis = 1)
+		df = df.loc[:,~df.columns.duplicated()]
+		df.to_csv(str(output), header = True, index = False, sep = "\t")
+
+# differential testing ----------------------------------------------------------------------------
+
+rule deseq2:
+	input:
+		catalog = "data/counts/counts_table.txt",
+		metadata = config["DESEQ2_CONFIG"]
+	params:
+		padj_cutoff = config["padj_cutoff"]
+	output:
+		directory("data/deseq2"),
+		norm_counts = "data/deseq2/norm_counts.txt",
+		log_norm_counts = "data/deseq2/log_norm_counts.txt",
+		pca = "data/deseq2/sample_PCA.png",
+		stats = "data/deseq2/de_stats.txt",
+		all_sig_intervals = "data/deseq2/all_sig_intervals.bed",
+		contrast_combinations = "data/deseq2/contrast_combinations.txt"
+	conda:
+		"envs/deseq2.yaml"
+	threads: 8
+	log:
+		out = "data/logs/deseq2.log"
+	script:
+		"scripts/deseq2.R"
+# normalize by reads in peaks
+
+rule diffbind:
+	input:
+		consensus_peaks = "data/macs2/consensus_peaks.bed",
+		metadata = config["DIFFBIND_CONFIG"]
+	params:
+		padj_cutoff = config["padj_cutoff"]
+	output:
+		directory("data/diffbind")
+	conda:
+		"envs/diffbind.yaml"
+	threads: 8
+	log:
+		"data/logs/diffbind.log"
+	script:
+		"scripts/diffbind.R"
+# normalize by entire sequencing depth
+
+# homer motif analysis ----------------------------------------------------------------------------
+
+rule homer:
+	input:
+		rules.deseq2.output.contrast_combinations
+	output:
+		directory("data/homer")
+	params:
+		genome = config["GENOME"]
+	log:
+		"data/logs/homer.log"
+	conda:
+		"envs/homer.yaml"
+	shell:
+		"bash scripts/homer.sh -i {input} -g {params.genome}"
+# this rule submits HOMER runs to SLURM. A run is each unique contrast
+# combinations split by up and down peaks if DE peaks >= 10.
+
+rule multiqc:
+	input:
+		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
+		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
+		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
+		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
+		expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES)
+	output:
+		"data/multiqc/multiqc_report.html"
+	conda:
+		"envs/multiqc.yaml"
+	shell:
+		"multiqc -f data/ -o data/multiqc --ignore data/homer"
