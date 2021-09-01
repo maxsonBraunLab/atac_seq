@@ -112,7 +112,9 @@ DESeq2 and DiffBind will test for differential open chromatin regions using ever
 * Significant peaks split by up and down-regulation `deseq2/{contrast}/{contrast}-[up_sig|down_sig].bed`
 * Heatmap of top 50 most differential regions `deseq2/{contrast}/{contrast}-heatmap.pdf` 
 
-HOMER motif analysis of up and down differential peaks will only be run if there is > 10 peaks. This rule will submit each HOMER run to SLURM, so make sure you are using a SLURM-based HPC. It's also easy to configure it to something else if needed. 
+DESeq2 normalizes data by the reads in peaks and assumes that most features (intervals in this case) do not change. DiffBind normalizes data by sequencing depth. We find that DESeq2 works well for finding differential peaks, while DiffBind works better to identify global changes in open chromatin regions.
+
+HOMER motif analysis of up and down differential peaks will only be run if there is > 10 peaks. This rule will submit each HOMER run to SLURM, so make sure you are using a SLURM-based HPC. It's also easy to configure it to something else if needed. It currently only supports the output of DESeq2. 
 
 ## Methods
 
