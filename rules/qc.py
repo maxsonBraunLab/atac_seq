@@ -48,29 +48,41 @@ rule fastq_screen:
 
 # library complexity ------------------------------------------------------------------------------
 
+def defect_mode(wildcards, attempt):
+	if attempt == 1:
+		return ""
+	elif attempt > 1:
+		return "-D"
+
 rule preseq:
 	input:
-		""
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
 	output:
 		"data/preseq/estimates_{sample}.txt"
+	resources:
+		defect = defect_mode
 	conda:
 		"../envs/preseq.yaml"
 	log:
 		"data/logs/preseq_{sample}.log"
 	shell:
-		"preseq c_curve -P -o {output} {input} > {log} 2>&1" 
+		"preseq c_curve -B -P {resources.defect} -l 9999999999 -r 1 -o {output} {input[0]} > {log} 2>&1" 
 
 rule preseq_lcextrap:
 	input:
-		""
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		"data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
 	output:
 		"data/preseq/lcextrap_{sample}.txt"
+	resources:
+		defect = defect_mode
 	conda:
 		"../envs/preseq.yaml"
 	log:
-		"data/logs/preseq_{sample}.log"
+		"data/logs/preseq_lcextrap_{sample}.log"
 	shell:
-		"preseq lc_extrap -P -e 1000000000 -o {output} {input} > {log} 2>&1"
+		"preseq lc_extrap -B -P {resources.defect} -l 9999999999 -r 1 -e 1000000000 -o {output} {input[0]} > {log} 2>&1"
 
 # fragment length ---------------------------------------------------------------------------------
 
@@ -157,7 +169,8 @@ rule multiqc:
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
-		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES)
+		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
+		expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES)
 	output:
 		"data/multiqc/multiqc_report.html"
 	conda:

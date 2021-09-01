@@ -38,7 +38,7 @@ rule diffbind:
 		"../scripts/diffbind.R"
 # normalize by entire sequencing depth
 
-rule HOMER:
+rule homer:
 	input:
 		rules.deseq2.output.contrast_combinations
 	output:
@@ -49,6 +49,7 @@ rule HOMER:
 		"data/logs/homer.log"
 	conda:
 		"../envs/homer.yaml"
-	threads: 8
 	shell:
 		"bash scripts/homer.sh -i {input} -g {params.genome}"
+# this rule submits HOMER runs to SLURM. A run is each unique contrast
+# combinations split by up and down peaks if DE peaks >= 10.

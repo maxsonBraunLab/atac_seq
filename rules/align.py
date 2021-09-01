@@ -10,7 +10,7 @@ rule bwa:
 		"data/logs/bwa_{sample}.log"
 	threads: 8
 	shell:
-		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} -o {output} -"
+		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} > {output}"
 
 rule filter:
 	input:
@@ -60,7 +60,7 @@ rule banlist:
 		"../envs/bedtools.yaml"
 	threads: 4
 	shell:
-		"bedtools intersect -v -a {input.bam} -b {input.banlist} > {output[0]}; samtools index {output[0]}"
+		"bedtools intersect -v -ubam -abam {input.bam} -b {input.banlist} | samtools sort -@ {threads} > {output[0]}; samtools index {output[0]}"
 
 rule bigwig:
 	input:

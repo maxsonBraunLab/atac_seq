@@ -23,29 +23,29 @@ configfile: "config.yaml"
 all_samples = glob.glob("data/raw/*.fastq.gz")
 all_reads = [os.path.basename(i).split(".")[0] for i in all_samples]
 
-localrules: fraglength_plot, FRiP, counts_table, multiqc, HOMER
+localrules: fraglength_plot, FRiP, counts_table, multiqc, homer
 
 rule all:
 	input:
-		# quality control
+		# quality control -------------------------------------------------------------------------
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
-		# expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES),
+		expand("data/preseq/estimates_{sample}.txt", sample = SAMPLES),
+		expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES),
+		"data/multiqc/multiqc_report.html",
 		"data/fraglen.html",
 		"data/frip.html",
-		# read alignment
+		# read alignment --------------------------------------------------------------------------
 		expand("data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam", sample = SAMPLES),
 		expand("data/bigwig/{sample}.bw", sample = SAMPLES),
-		# peak calling
+		# peak calling ----------------------------------------------------------------------------
 		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
 		"data/macs2/consensus_peaks.bed",
 		"data/counts/counts_table.txt",
-		# differential
+		# differential ----------------------------------------------------------------------------
 		"data/deseq2",
 		"data/diffbind",
-		"data/multiqc/multiqc_report.html",
-		# HOMER
 		"data/homer"
 
 include: "rules/functions.py"
