@@ -29,7 +29,7 @@ configfile: "config.yaml"
 all_samples = glob.glob("data/raw/*.fastq.gz")
 all_reads = [os.path.basename(i).split(".")[0] for i in all_samples]
 
-localrules: fraglength_plot, FRiP, counts_table, multiqc, homer
+localrules: fraglength_plot, FRiP_plot, counts_table, multiqc, homer
 
 rule all:
 	input:
@@ -208,7 +208,7 @@ rule fraglength_plot:
 		fraglen.write_html(str(output))
 
 # more like fraction of reads in consensus peaks
-rule FRiP_count:
+rule FRiP:
 	input:
 		consensus = "data/macs2/consensus_peaks.bed",
 		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
@@ -223,7 +223,7 @@ rule FRiP_count:
 		echo -e "{wildcards.sample}\n$all_reads\n$rip" > {output}
 		"""
 
-rule FRiP:
+rule FRiP_plot:
 	input:
 		expand("data/stats/{sample}.frip.txt", sample = SAMPLES)
 	output:
@@ -273,17 +273,15 @@ rule consensus:
 		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES)
 	output:
 		"data/macs2/consensus_peaks.bed"
-	params:
-		n_intersects = config["N_INTERSECTS"]
 	conda:
 		"envs/bedtools.yaml"
 	shell:
-		"bash scripts/consensus_peaks.sh {params.n_intersects} {input} > {output}"
+		"bash scripts/consensus_peaks.sh {config[N_INTERSECTS]} {input} > {output}"
 
 rule counts:
 	input:
-		consensus = rules.consensus.output,
-		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
+		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
+		consensus = "data/macs2/consensus_peaks.bed"
 	output:
 		"data/multicov/{sample}.txt"
 	conda:
