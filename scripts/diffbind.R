@@ -13,7 +13,7 @@ if (dir.exists("data/diffbind")) {
 	dir.create("data/diffbind")
 }
 
-consensus_peaks <- GRanges(read.table(snakemake@input[["consensus_peaks"]], col.names=c("seqnames", "start", "end", "name")))
+consensus_peaks <- GRanges(read.table(snakemake@input[["consensus_peaks"]], col.names=c("seqnames", "start", "end")) %>% mutate(name = paste0("peak", row_number())) )
 
 ATAC <-dba(sampleSheet=snakemake@input[["metadata"]])
 ATAC <- dba.count(ATAC, peaks=consensus_peaks)
@@ -23,8 +23,6 @@ ATAC <- dba.analyze(ATAC)
 
 # loop through all contrasts and export results
 dba_meta <- dba.show(ATAC, bContrasts=TRUE)
-dba_meta[,c("Group", "Group2")] %>%
-	write.table(., snakemake@output[["contrast_combinations"]], sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
 
 # save.image()
 for (i in 1:nrow(dba_meta)) {

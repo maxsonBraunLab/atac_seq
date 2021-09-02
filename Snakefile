@@ -33,7 +33,7 @@ localrules: fraglength_plot, FRiP, counts_table, multiqc, homer
 
 rule all:
 	input:
-		# quality control -----------------------------------------------------------------
+		# quality control
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
@@ -42,14 +42,14 @@ rule all:
 		"data/multiqc/multiqc_report.html",
 		"data/fraglen.html",
 		"data/frip.html",
-		# read alignment ------------------------------------------------------------------
+		# read alignment
 		expand("data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam", sample = SAMPLES),
 		expand("data/bigwig/{sample}.bw", sample = SAMPLES),
-		# peak calling --------------------------------------------------------------------
-		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
+		# peak calling
+		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES),
 		"data/macs2/consensus_peaks.bed",
 		"data/counts/counts_table.txt",
-		# differential --------------------------------------------------------------------
+		# differential
 		"data/deseq2",
 		"data/diffbind",
 		"data/homer"
@@ -256,30 +256,29 @@ rule macs2:
 		bam = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
 		bai = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam.bai"
 	output:
-		"data/macs2/{sample}/{sample}_peaks.broadPeak"
+		"data/macs2/{sample}_peaks.broadPeak"
 	conda:
 		"envs/macs2.yaml"
 	params:
-		outdir = "data/macs2/{sample}",
 		genome_size = config["GSIZE"]
 	log:
 		"data/logs/macs2_{sample}.log"
 	shell:
 		"macs2 callpeak -t {input.bam} -n {wildcards.sample} "
-		"--format BAMPE --gsize {params.genome_size} "
-		"--outdir {params.outdir} --broad > {log} 2>&1"
+		"--format BAMPE --gsize {config[GSIZE]} "
+		"--outdir data/macs2 --broad > {log} 2>&1"
 
 rule consensus:
 	input:
-		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES)
+		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES)
 	output:
 		"data/macs2/consensus_peaks.bed"
 	params:
 		n_intersects = config["N_INTERSECTS"]
 	conda:
-		"envs/consensus.yaml"
-	script:
-		"scripts/consensus_peaks.R"
+		"envs/bedtools.yaml"
+	shell:
+		"bash scripts/consensus_peaks.sh {params.n_intersects} {input} > {output}"
 
 rule counts:
 	input:
@@ -294,16 +293,17 @@ rule counts:
 
 rule counts_table:
 	input:
-		expand("data/multicov/{sample}.txt", sample = SAMPLES)
+		expand("data/multicov/{sample}.txt", sample = sorted(SAMPLES))
 	output:
 		"data/counts/counts_table.txt"
 	run:
 		dfs = []
 		for file in list(input):
 			sample_name = os.path.basename(file).split('.')[0]
-			dfs.append( pd.read_csv(file, sep = "\t", names = ["chr", "start", "end", "name", sample_name]) )
+			dfs.append( pd.read_csv(file, sep = "\t", names = ["chr", "start", "end", sample_name]) )
 		df = pd.concat(dfs, axis = 1)
 		df = df.loc[:,~df.columns.duplicated()]
+		df.insert( 3, "name", ["peak" + str(i) for i in df.index] )
 		df.to_csv(str(output), header = True, index = False, sep = "\t")
 
 # differential testing ----------------------------------------------------------------------------

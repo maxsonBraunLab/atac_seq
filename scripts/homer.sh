@@ -12,6 +12,7 @@ done
 # reset current homer results
 if [ -d "data/homer" ]; then
 	rm -r "data/homer"
+	mkdir "data/homer"
 fi
 
 # check if input files exists.
@@ -77,14 +78,18 @@ do
 		echo "ERROR: $up_peaks had less than 10 DE intervals."
 	else
 		echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
-		sbatch --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
+		job_out="jobs/out/homer-$contrast.out"
+		job_err="jobs/error/homer-$contrast.err"
+		sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
 	fi
 
 	if [ "$dn_peaks_count" -lt 10 ]; then
 		echo "ERROR: $dn_peaks had less than 10 DE intervals."
 	else
 		echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
-		sbatch --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
+		job_out="jobs/out/homer-$contrast.out"
+		job_err="jobs/error/homer-$contrast.err"
+		sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
 	fi
 
 done < $i
