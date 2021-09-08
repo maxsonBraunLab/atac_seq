@@ -164,17 +164,28 @@ rule banlist:
 	shell:
 		"bedtools intersect -v -ubam -abam {input.bam} -b {input.banlist} | samtools sort -@ {threads} > {output[0]}; samtools index {output[0]}"
 
+rule windows:
+	input:
+		config["CHROM_SIZES"]
+	output:
+		"data/bigwig/windows.bed.gz"
+	conda:
+		"envs/bedtools.yaml"
+	shell:
+		"bedtools makewindows -g {input} -w 10 | gzip > {output}"
+
 rule bigwig:
 	input:
 		bam = rules.banlist.output[0],
-		bai = rules.banlist.output[1]
+		bai = rules.banlist.output[1],
+		windows = rules.windows.output,
+		chrom_sizes = config["CHROM_SIZES"]
 	output:
 		"data/bigwig/{sample}.bw"
 	conda:
-		"envs/deeptools.yaml"
-	threads: 16
+		"envs/bedtools.yaml"
 	shell:
-		"bamCoverage -b {input.bam} -o {output} -p {threads} --skipNAs --binSize 10 --smoothLength 50 --normalizeUsing CPM"
+		"bash scripts/bigwig.sh -i {input.bam} -o {output} -c {input.chrom_sizes} -w {input.windows}"
 
 rule fraglength:
 	input:
@@ -265,7 +276,7 @@ rule macs2:
 		"data/logs/macs2_{sample}.log"
 	shell:
 		"macs2 callpeak -t {input.bam} -n {wildcards.sample} "
-		"--format BAMPE --gsize {config[GSIZE]} "
+		"--format BAMPE --gsize {config[GSIZE]} --tempdir data/macs2 "
 		"--outdir data/macs2 --broad > {log} 2>&1"
 
 rule consensus:
