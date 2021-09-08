@@ -1,0 +1,9 @@
+name: atac_seq-test
+
+uses: snakemake/snakemake-github-action@v1.22.0
+
+with:
+  directory: '.test'
+  snakefile: 'Snakefile'
+  args: '-j 8 --use-conda'
+  stagein: 'echo "hello world!"; python scripts/make_differential_configs.py'
