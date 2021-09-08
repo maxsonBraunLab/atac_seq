@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 1 - Checking out atac_seq
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: 2 - Installing Conda and SnakeMake
-      - uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v2
         with:
             activate-environment: snakemake
             environment-file: .test/snakemake.5.32.yaml
