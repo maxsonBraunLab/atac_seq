@@ -22,11 +22,11 @@ jobs:
       - name: 3 - Prepare for the Snake
         run: |
             pwd
-            conda init bash
-            bash
-            source activate snakemake
             ls
             tree
+            conda init bash
+            source ~/.bashrc
+            conda activate snakemake
 
       - name: 4 - Run the Snake
         run: |
