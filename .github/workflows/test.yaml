@@ -18,6 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       run: |
-      echo "hello world!"
+      echo hello world
       python scripts/make_differential_configs.py
       snakemake -j 8 --use-conda --directory .test
