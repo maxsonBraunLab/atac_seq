@@ -26,7 +26,7 @@ jobs:
             tree
             conda init bash
             source ~/.bashrc
-            conda activate snakemake
+            source activate snakemake
 
       - name: 4 - Run the Snake
         run: |
