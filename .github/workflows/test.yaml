@@ -20,7 +20,8 @@ jobs:
             environment-file: .test/snakemake.5.32.yaml
 
       - name: 3 - Prepare for the Snake(Make)
-        run: "pwd"
-        run: "conda activate snakemake"
-        run: "ls"
-        run: "tree"
+        run: |
+        pwd
+        conda activate snakemake
+        ls
+        tree
