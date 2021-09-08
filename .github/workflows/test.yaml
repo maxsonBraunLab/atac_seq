@@ -3,10 +3,10 @@ name: atac-seq-test
 uses: snakemake/snakemake-github-action@v1.22.0
 
 on:
-	push:
-		branches: [ main ]
-	pull_request:
-		branches: [ main ]
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 # with:
 #   directory: '.test'
@@ -14,13 +14,14 @@ on:
 #   args: '-j 8 --use-conda'
 
 jobs:
-	test-atac-seq:
-		runs-on: ubuntu-latest
-		steps:
-			- name: 1 - Checking out atac_seq
-			- uses: actions/checkout@v2
-			- name: 2 - Installing Conda and SnakeMake
-			- uses: conda-incubator/setup-miniconda@v2
-			with:
-				activate-environment: snakemake
-				environment-file: .test/snakemake.5.32.yaml
+  test-atac-seq:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1 - Checking out atac_seq
+      - uses: actions/checkout@v2
+
+      - name: 2 - Installing Conda and SnakeMake
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+            activate-environment: snakemake
+            environment-file: .test/snakemake.5.32.yaml
