@@ -21,7 +21,7 @@ jobs:
 
       - name: 3 - Prepare for the Snake(Make)
         run: |
-        pwd
-        conda activate snakemake
-        ls
-        tree
+            pwd
+            conda activate snakemake
+            ls
+            tree
