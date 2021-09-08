@@ -19,9 +19,15 @@ jobs:
             activate-environment: snakemake
             environment-file: .test/snakemake.5.32.yaml
 
-      - name: 3 - Prepare for the Snake(Make)
+      - name: 3 - Prepare for the Snake
         run: |
             pwd
+            conda init bash
             conda activate snakemake
             ls
             tree
+
+      - name: 4 - Run the Snake
+        run: |
+          snakemake -j 1 -np
+          snakemake -j 2 --use-conda --directory .test --conda-frontend mamba
