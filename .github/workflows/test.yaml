@@ -23,7 +23,8 @@ jobs:
         run: |
             pwd
             conda init bash
-            conda activate snakemake
+            bash
+            source activate snakemake
             ls
             tree
 
