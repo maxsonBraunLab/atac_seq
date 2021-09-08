@@ -17,6 +17,7 @@ jobs:
   test-atac-seq:
     runs-on: ubuntu-latest
     steps:
-      run: 'echo "hello world!"  '
-      run: 'python scripts/make_differential_configs.py  '
-      run: 'snakemake -j 8 --use-conda --directory .test  '
+      run: |
+      echo "hello world!"
+      python scripts/make_differential_configs.py
+      snakemake -j 8 --use-conda --directory .test
