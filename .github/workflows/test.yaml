@@ -30,10 +30,11 @@ jobs:
             conda info
             conda list
 
-      # - name: 4 - Prepare the Snake
-      #   run: |
-      #     snakemake -j 1 -np
-      #     snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only
+      - name: 4 - Prepare the Snake
+        run: |
+          source activate snakemake
+          snakemake -j 1 -np
+          snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only
 
       # - name: 5 - Run the Snake
       #   run: snakemake -j 2 --use-conda --directory .test
