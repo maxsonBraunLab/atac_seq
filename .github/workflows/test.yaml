@@ -4,9 +4,9 @@ uses: snakemake/snakemake-github-action@v1.22.0
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, test ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, test ]
 
 # with:
 #   directory: '.test'
