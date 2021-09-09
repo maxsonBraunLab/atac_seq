@@ -13,10 +13,10 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - name: 1 - Checking out atac_seq
+      - name: 1 - Check out atac_seq
         uses: actions/checkout@v2
 
-      - name: 2 - Installing Conda and SnakeMake
+      - name: 2 - Install Conda and SnakeMake
         uses: conda-incubator/setup-miniconda@v2
         with:
             activate-environment: snakemake
@@ -24,6 +24,9 @@ jobs:
 
       - name: 3 - Activate Conda Environment
         run: |
+            tree
+            echo ----------
+            tree .test
             conda init bash
             source ~/.bashrc
             source activate snakemake
