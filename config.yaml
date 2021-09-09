@@ -5,7 +5,7 @@ FASTQ_SCREEN_CONFIG: "data/config/fastq_screen_config.tsv"
 MULTIQC_CONFIG: "data/config/multiqc_config.yaml"
 DESEQ2_CONFIG: "data/config/deseq2_config.tsv"
 DIFFBIND_CONFIG: "data/config/diffbind_config.csv"
-
+CHROM_SIZES: "/home/groups/MaxsonLab/indices/mm10/mm10.chrom.sizes"
 # read alignment + preprocessing ------------------------------------------------------------------
 
 GENOME: "/home/groups/MaxsonLab/indices/mm10/mm10.fa"

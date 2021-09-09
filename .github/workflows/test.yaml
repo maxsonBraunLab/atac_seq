@@ -1,26 +1,46 @@
 name: atac-seq-test
 
-uses: snakemake/snakemake-github-action@v1.22.0
-
 on:
-	push:
-		branches: [ main ]
-	pull_request:
-		branches: [ main ]
-
-# with:
-#   directory: '.test'
-#   snakefile: 'Snakefile'
-#   args: '-j 8 --use-conda'
+  push:
+    branches: [ main, test ]
+  pull_request:
+    branches: [ main, test ]
 
 jobs:
-	test-atac-seq:
-		runs-on: ubuntu-latest
-		steps:
-			- name: 1 - Checking out atac_seq
-			- uses: actions/checkout@v2
-			- name: 2 - Installing Conda and SnakeMake
-			- uses: conda-incubator/setup-miniconda@v2
-			with:
-				activate-environment: snakemake
-				environment-file: .test/snakemake.5.32.yaml
+  test-atac-seq:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: 1 - Check out atac_seq
+        uses: actions/checkout@v2
+
+      - name: 2 - Install Conda and SnakeMake
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            activate-environment: snakemake
+            environment-file: .test/snakemake.5.32.yaml
+
+      - name: 3 - Activate Conda Environment
+        run: |
+            tree
+            echo ----------
+            tree .test
+            conda init bash
+            source ~/.bashrc
+            source activate snakemake
+            conda info
+            conda list
+
+      - name: 4 - Prepare the Snake
+        run: |
+          cd .test
+          python scripts/make_differential_configs.py
+          source activate /usr/share/miniconda/envs/snakemake
+          cd ..
+          snakemake -j 1 -np --directory .test
+          snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
+
+      - name: 5 - Run the Snake
+        run: snakemake -j 2 --use-conda --directory .test
