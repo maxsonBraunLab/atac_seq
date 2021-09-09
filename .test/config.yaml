@@ -4,7 +4,7 @@
 FASTQ_SCREEN_CONFIG: "data/config/fastq_screen_config.tsv"
 MULTIQC_CONFIG: "data/config/multiqc_config.yaml"
 DESEQ2_CONFIG: "data/config/deseq2_config.tsv"
-
+CHROM_SIZES: "testdata/hg38.chrom.sizes"
 # read alignment + preprocessing ------------------------------------------------------------------
 
 GENOME: "testdata/hg38_chr1"
