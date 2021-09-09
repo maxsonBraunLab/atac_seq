@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash -l {0}
+        shell: bash -l {0} # default to bash shell
     steps:
       - name: 1 - Check out atac_seq
         uses: actions/checkout@v2
