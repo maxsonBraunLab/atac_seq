@@ -9,6 +9,9 @@ on:
 jobs:
   test-atac-seq:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - name: 1 - Checking out atac_seq
         uses: actions/checkout@v2
@@ -32,7 +35,7 @@ jobs:
 
       - name: 4 - Prepare the Snake
         run: |
-          source activate snakemake
+          source activate /usr/share/miniconda/envs/snakemake
           snakemake -j 1 -np
           snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only
 
