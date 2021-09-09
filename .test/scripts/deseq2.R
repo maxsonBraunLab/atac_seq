@@ -1,3 +1,5 @@
+sink(file("data/logs/deseq2.log", open = "wt"), type = "message")
+
 library(dplyr)
 library(DESeq2)
 library(ggplot2)
