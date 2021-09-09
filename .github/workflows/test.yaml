@@ -36,7 +36,7 @@ jobs:
       - name: 4 - Prepare the Snake
         run: |
           cd .test
-          python scripts/make_differential_config.py
+          python scripts/make_differential_configs.py
           source activate /usr/share/miniconda/envs/snakemake
           cd ..
           snakemake -j 1 -np
