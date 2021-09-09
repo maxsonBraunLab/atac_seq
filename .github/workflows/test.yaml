@@ -39,8 +39,8 @@ jobs:
           python scripts/make_differential_configs.py
           source activate /usr/share/miniconda/envs/snakemake
           cd ..
-          snakemake -j 1 -np
-          snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only
+          snakemake -j 1 -np --directory .test
+          snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
 
       - name: 5 - Run the Snake
         run: snakemake -j 2 --use-conda --directory .test
