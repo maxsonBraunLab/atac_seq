@@ -8,7 +8,7 @@ DIFFBIND_CONFIG: "data/config/diffbind_config.csv"
 CHROM_SIZES: "testdata/hg38.chrom.sizes"
 # read alignment + preprocessing ------------------------------------------------------------------
 
-GENOME: "testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa"
+GENOME: "testdata/Homo_sapiens.GRCh38.dna.chromosome.1.short.fa.gz"
 ASSEMBLY: "hg38" # [hg38, mm10]
 
 # Forbidden regions of the genome for read alignment and analysis
@@ -17,7 +17,7 @@ BANLIST: "testdata/hg38.blacklist.v2.bed"
 # peak calling ------------------------------------------------------------------------------------
 
 # number of times a peak needs to appear across samples in one condition. helps build consensus peak.
-N_INTERSECTS: 1
+N_INTERSECTS: 2
 
 # size of the genome for macs2 peak calling
 GSIZE: "2.7e9"

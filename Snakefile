@@ -8,7 +8,8 @@ import plotly as plt
 import plotly.graph_objects as go
 from snakemake.utils import min_version
 min_version("5.11")
-
+if sys.version_info < (3, 6):
+	sys.exit("Python version is less than 3.6. Your python version:", sys.version_info)
 
 SAMPLES, = glob_wildcards("data/raw/{sample}_R1.fastq.gz")
 
@@ -259,6 +260,34 @@ rule FRiP_plot:
 			yaxis=dict(title='Fraction of reads in peaks', titlefont_size=16, tickfont_size=14),
 			xaxis=dict(title='Samples'))
 		fig.write_html(str(output))
+
+rule preseq:
+	input:
+		rules.banlist.output[0]
+	output:
+		"data/preseq/estimates_{sample}.txt"
+	conda:
+		"envs/preseq.yaml"
+	resources:
+		defect_mode = defect_mode
+	log:
+		"data/logs/preseq_{sample}.log"
+	shell:
+		"preseq c_curve -B {resources.defect_mode} -l 1000000000 -P -o {output} {input} > {log} 2>&1"
+
+rule preseq_lcextrap:
+	input:
+		rules.banlist.output[0]
+	output:
+		"data/preseq/lcextrap_{sample}.txt"
+	conda:
+		"envs/preseq.yaml"
+	resources:
+		defect_mode = defect_mode
+	log:
+		"data/logs/preseq_lcextrap_{sample}.log"
+	shell:
+		"preseq lc_extrap -B {resources.defect_mode} -l 1000000000 -P -e 1000000000 -o {output} {input} > {log} 2>&1"
 
 # peak calling ------------------------------------------------------------------------------------
 
