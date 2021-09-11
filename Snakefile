@@ -39,7 +39,7 @@ rule all:
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/preseq/estimates_{sample}.txt", sample = SAMPLES),
-		expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES),
+		expand("data/preseq/lcextrap_{sample}", sample = SAMPLES),
 		"data/multiqc/multiqc_report.html",
 		"data/fraglen.html",
 		"data/frip.html",
@@ -279,7 +279,7 @@ rule preseq_lcextrap:
 	input:
 		rules.banlist.output[0]
 	output:
-		"data/preseq/lcextrap_{sample}.txt"
+		"data/preseq/lcextrap_{sample}"
 	conda:
 		"envs/preseq.yaml"
 	resources:
@@ -409,8 +409,8 @@ rule multiqc:
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
-		expand("data/macs2/{sample}/{sample}_peaks.broadPeak", sample = SAMPLES),
-		expand("data/preseq/lcextrap_{sample}.txt", sample = SAMPLES)
+		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES),
+		expand("data/preseq/lcextrap_{sample}", sample = SAMPLES)
 	output:
 		"data/multiqc/multiqc_report.html"
 	conda:
