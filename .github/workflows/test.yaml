@@ -42,5 +42,11 @@ jobs:
           snakemake -j 1 -np --directory .test
           snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
 
-      - name: 5 - Run the Snake
-        run: snakemake -j 2 --use-conda --directory .test
+      - name: 5  - BWA Index
+        run: |
+          cd .test
+          bwa index testdata/Homo_sapiens.GRCh38.dna_rm.chromosome.1.fa.gz
+          cd ..
+
+      - name: 6 - Run the Snake
+        run: snakemake -j 2 --use-conda --directory .test -O fastq_screen # omit fastq screen bc there's no pre
