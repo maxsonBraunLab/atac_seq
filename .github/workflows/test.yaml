@@ -50,4 +50,4 @@ jobs:
           cd ..
 
       - name: 6 - Run the Snake
-        run: snakemake -j 2 --use-conda --directory .test -O fastq_screen # omit fastq screen bc there's no pre
+        run: snakemake -j 2 --use-conda --directory .test

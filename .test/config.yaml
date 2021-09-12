@@ -8,7 +8,7 @@ DIFFBIND_CONFIG: "data/config/diffbind_config.csv"
 CHROM_SIZES: "testdata/hg38.chrom.sizes"
 # read alignment + preprocessing ------------------------------------------------------------------
 
-GENOME: "testdata/Homo_sapiens.GRCh38.dna.chromosome.1.short.fa.gz"
+GENOME: "testdata/Homo_sapiens.GRCh38.dna_rm.chromosome.1.fa.gz"
 ASSEMBLY: "hg38" # [hg38, mm10]
 
 # Forbidden regions of the genome for read alignment and analysis
