@@ -400,8 +400,8 @@ rule homer:
 	conda:
 		"envs/homer.yaml"
 	shell:
-		"bash scripts/homer.sh -i {input} -g {params.genome}"
-# this rule submits HOMER runs to SLURM. A run is each unique contrast
+		"bash scripts/homer.sh -i {input} -g {params.genome} -s 0"
+# this rule submits HOMER runs to SLURM if -s = 1. A run is each unique contrast
 # combinations split by up and down peaks if DE peaks >= 10.
 
 rule multiqc:

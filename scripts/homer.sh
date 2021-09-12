@@ -1,10 +1,11 @@
 #!/usr/bin/bash
 
-while getopts "i:g:" op
+while getopts "i:g:s:" op
 do
 	case "$op" in
 		i)  i="$OPTARG";;
 		g)  g="$OPTARG";;
+		s)  s="$OPTARG";;
 		\?) exit 1;;
 	esac
 done
@@ -77,21 +78,34 @@ do
 	if [ "$up_peaks_count" -lt 10 ]; then
 		echo "ERROR: $up_peaks had less than 10 DE intervals."
 	else
-		echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
-		job_out="jobs/out/homer-$contrast.out"
-		job_err="jobs/error/homer-$contrast.err"
-		sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
+
+		if [ $s == 1 ]; then
+			echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
+			job_out="jobs/out/homer-$contrast.out"
+			job_err="jobs/error/homer-$contrast.err"
+			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
+		else
+			findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1 &
+		fi
+
 	fi
 
 	if [ "$dn_peaks_count" -lt 10 ]; then
 		echo "ERROR: $dn_peaks had less than 10 DE intervals."
 	else
-		echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
-		job_out="jobs/out/homer-$contrast.out"
-		job_err="jobs/error/homer-$contrast.err"
-		sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
+
+		if [ $s == 1 ]; then
+			echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
+			job_out="jobs/out/homer-$contrast.out"
+			job_err="jobs/error/homer-$contrast.err"
+			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
+		else
+			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $up_log 2>&1 &
+		fi
 	fi
+
+	wait # for serial jobs
 
 done < $i
 
-wait
+wait # for parallel jobs

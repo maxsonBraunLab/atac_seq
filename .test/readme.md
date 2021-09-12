@@ -27,15 +27,15 @@ wget -q https://www.encodeproject.org/files/ENCFF126VJY/@@download/ENCFF126VJY.f
 wget -q https://www.encodeproject.org/files/ENCFF817MYO/@@download/ENCFF817MYO.fastq.gz &
 
 # subset and rename
-zcat ENCFF088ONP.fastq.gz | head -1000000 | gzip > AdrenalGland16_1_R1.fastq.gz &
-zcat ENCFF011ANA.fastq.gz | head -1000000 | gzip > AdrenalGland16_1_R2.fastq.gz &
-zcat ENCFF097DWT.fastq.gz | head -1000000 | gzip > AdrenalGland16_2_R1.fastq.gz &
-zcat ENCFF501VCA.fastq.gz | head -1000000 | gzip > AdrenalGland16_2_R2.fastq.gz &
+zcat ENCFF088ONP.fastq.gz | head -4000000 | gzip > AdrenalGland16_1_R1.fastq.gz &
+zcat ENCFF011ANA.fastq.gz | head -4000000 | gzip > AdrenalGland16_1_R2.fastq.gz &
+zcat ENCFF097DWT.fastq.gz | head -4000000 | gzip > AdrenalGland16_2_R1.fastq.gz &
+zcat ENCFF501VCA.fastq.gz | head -4000000 | gzip > AdrenalGland16_2_R2.fastq.gz &
 
-zcat ENCFF106DBO.fastq.gz | head -1000000 | gzip > AdrenalGland59_1_R1.fastq.gz &
-zcat ENCFF093HFA.fastq.gz | head -1000000 | gzip > AdrenalGland59_1_R2.fastq.gz &
-zcat ENCFF126VJY.fastq.gz | head -1000000 | gzip > AdrenalGland59_2_R1.fastq.gz &
-zcat ENCFF817MYO.fastq.gz | head -1000000 | gzip > AdrenalGland59_2_R2.fastq.gz &
+zcat ENCFF106DBO.fastq.gz | head -4000000 | gzip > AdrenalGland59_1_R1.fastq.gz &
+zcat ENCFF093HFA.fastq.gz | head -4000000 | gzip > AdrenalGland59_1_R2.fastq.gz &
+zcat ENCFF126VJY.fastq.gz | head -4000000 | gzip > AdrenalGland59_2_R1.fastq.gz &
+zcat ENCFF817MYO.fastq.gz | head -4000000 | gzip > AdrenalGland59_2_R2.fastq.gz &
 
 mv ENCFF088ONP.fastq.gz ENCFF088ONP.fastq.gz.norun
 mv ENCFF011ANA.fastq.gz ENCFF011ANA.fastq.gz.norun
