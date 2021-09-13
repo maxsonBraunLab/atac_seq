@@ -34,11 +34,6 @@ jobs:
             conda list
 
       - name: 4 - Prepare the Snake # -------------------------------------------------------------
-        uses: actions/cache@v2
-        with:
-          path: .test/snakemake/conda
-          key: ${{ runner.os }}-snakemake-env-cache-${{ hashFiles('envs/*.yaml') }}
-          restore-keys: ${{ runner.os }}-snakemake-env-cache-
         run: |
           cd .test
           python scripts/make_differential_configs.py
@@ -48,11 +43,6 @@ jobs:
           snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
 
       - name: 5  - BWA Index # --------------------------------------------------------------------
-        uses: actions/cache@v2
-        with:
-          path: .test/testdata
-          key: ${{ runner.os }}-bwa-index-cache-${{ hashFiles('.test/testdata/testdata/Homo_sapiens.GRCh38.dna_rm.chromosome.1.fa.gz') }}
-          restore-keys: ${{ runner.os }}-bwa-index-cache-
         run: |
           cd .test
           source activate .snakemake/conda/d2a3bb3d
