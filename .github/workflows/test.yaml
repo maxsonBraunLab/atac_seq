@@ -54,7 +54,6 @@ jobs:
           snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
 
       - name: 5  - BWA Index
-        with:
         run: |
           cd .test
           source activate .snakemake/conda/d2a3bb3d
