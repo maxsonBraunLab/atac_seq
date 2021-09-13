@@ -1,35 +1,42 @@
 # atac_seq
 
+[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
+![ci/cd status](https://github.com/maxsonBraunLab/atac_seq/actions/workflows/test.yaml/badge.svg)
+[![snakemake minimum](https://img.shields.io/badge/snakemake->=5.32-<COLOR>.svg)](https://shields.io/)
+![Maintainer](https://img.shields.io/badge/maintainer-gartician-blue)
+
 Process and analyze your PE ATAC-Seq datasets
 
 ## 1. Prepare your work environment
 
 ```bash
 # clone this repo to a new working directory
-git clone git@github.com:maxsonBraunLab/atac_seq.git
+git clone git@github.com:maxsonBraunLab/atac_seq2.git
 
 # cd into atac_seq-2.0 and make new dir for your FASTQ files
-mkdir -p data/raw
+mkdir -p samples/raw
 
-# cd into 'data/raw' and symlink your FASTQ files
-ln -s /absolute/path/to/files/sample_R1.fastq.gz .
-ln -s /absolute/path/to/files/sample_R2.fastq.gz .
+# cd into 'samples/raw' and symlink your FASTQ files
+ln -s /absolute/path/to/files/condition1_R1.fastq.gz .
+ln -s /absolute/path/to/files/condition1_R2.fastq.gz .
 
 # rename symlinks to match {condition}_{replicate}_{read}.fastq.gz
-mv sample_R1.fastq.gz condition_replicate_R1.fastq.gz
-mv sample_R2.fastq.gz condition_replicate_R2.fastq.gz
+mv condition1_R2 condition_1_R1.fastq.gz
+mv condition1_R2 condition_1_R2.fastq.gz
+
 ```
 
-Double check that the symlinks match the required input format: `{condition}_{replicate}_{read}.fastq.gz`. Condition can contain text, numbers, and dashes; replicate must contain integers; read is either R1 or R2.
+Double check the symlinks match the required input format: `{condition}_{replicate}_{dir}.fastq.gz`.
 
 ## 2. Prepare your conda environment
 
-Continue forward if you don't have a conda environment with a clean install of snakemake.
+Continue forward if you don't have a conda environment with snakemake installed
 
 ```bash
 # while using base conda env, create your snakemake environment
-conda install -c conda-forge mamba # installs mamba into base env
-mamba create -c conda-forge -c bioconda -n snakemake snakemake # installs snakemake into new env with mamba
+conda install -c conda-forge mamba # installs into base env
+mamba create -c conda-forge -c bioconda -n snakemake snakemake # installs snakemake into new env
+
 conda activate snakemake
 ```
 
@@ -39,83 +46,82 @@ Make sure to also install plotly in the snakemake environment with `conda instal
 
 Edit the `config.yaml` file to specify which organism to use and other pipeline parameters.
 
-Run the following command to generate differential config files for DESeq2 and DiffBind:
-
-```bash
-$ python scripts/make_differential_configs.py
-```
-
-Then double check the `data/config/deseq2_config.tsv|diffbind_config.csv` files. You can rename the condition columns to change the output in DESeq2/DiffBind. 
+Edit the `data/config/deseq2_config.tsv` file to specify which replicates belong with which condition in DESeq2.
 
 ## 4. Run the pipeline
 
-To configure SLURM snake make profile with OHSU's cluster, copy the entire `slurm` folder into your home directory `~/.config/snakemake` and then delete the local copy.
+To configure SLURM integration with OHSU's cluster, copy the entire `slurm` folder into your home directory `~/.config/snakemake` and then delete the local copy.
 
-You can run the pipeline using batch mode like this:
-
-```bash
-snakemake -j 64 --use-conda --cluster-config cluster.yaml --profile slurm --restart-times 3
-```
-
-This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
-
----
-
-You can also run the pipeline interactively like this:
+You can run the pipeline using an interactive node like this:
 
 ```bash
 srun --cores=20 --mem=64G --time=24:00:00 --pty bash
 conda activate snakemake
-snakemake -j 20 --use-conda --restart-times 3
+snakemake -j 20 --use-conda
 ```
 
 This is sufficient for small jobs or running small parts of the pipeline, but not appropriate for the entire process.
 
-## Output
+To run the pipeline using batch mode use the following command:
+
+```bash
+snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile slurm --restart-times 1
+
+```
+
+This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
+
+## Pipeline Summary
+
+### Assumptions
+
+* When making the BWA index, chromosome names must be prefixed with 'chr' like 'chr1', 'chr2', 'chrX', and 'chrM'.
+
+### Inputs
+
+* Reads in this specific format: **{condition}\_{replicate}\_{dir}.fastq.gz**
+    * `Condition` = experimental treatment such as: 'MOLM24D', 'SETBP1_CSF3R_Mutant' , 'SETBP1_CSF3R_Control_8hr'. Multiple underscores, text / number mixing is OK. 
+    * `Replicate` = biological replicate. acceptable values are integers >= 1.
+    * `Dir` = read direction. Acceptable values are ['R1', 'R2'].
+    * Reads must be placed in the `data/raw` directory.
+* Properly configured `config.yaml` file
+
+### Outputs
 
 All of the following are in the `data` directory.
 
-```
-data/banlist ------- post-processed bam files
-data/bigwig -------- tracks for IGV
-data/config -------- config file for multiqc, DE testing, fastq_screen
-data/counts -------- consensus peaks + counts tables per sample
-data/deseq2 -------- results of DESeq2
-data/diffbind ------ results of DiffBind
-data/fastp --------- trimmed and QC'd reads
-data/fastqc -------- results of FASTQC
-data/fastq_screen -- results of fastqc_screen
-data/logs ---------- log files
-data/macs2 --------- results of MACS2
-data/multicov ------ counts table containing all samples
-data/multiqc ------- quality control report
-data/preseq -------- results of Preseq
-data/raw ----------- raw data
-```
+* MultiQC report `data/multiqc_data/multiqc_report.html` that summarizes the following results:
+    * sequencing quality from fastqc
+    * sequencing quality and read trimming from fastp
+    * alignment quality from bowtie2
+    * library contamination from fastq_screen
+    * library complexity from preseq
 
-## Pipeline Details
+* FRiP and fragment length distribution `data/frip.html` `data/fraglen.html`. FRiP is more like Fraction of Reads in Consensus Peaks.
 
-FRiP is actually Fraction of Reads in Consensus Peaks.
+* Consensus peaks among _n_ replicates per condition where _n_ is configurable. A peak is considered a consensus peak when it is in >= _n_ number of samples per condition. 
 
-Consensus peaks is the union of peaks that appear in _n_ replicates in at least one condition where _n_ is configurable. 
+    * For example, peak1 appears in 2 out of 3 replicates in condition1. If n = 2, then peak1 is considered a consensus peak, even if it does not appear in other conditions. 
+    * For example, peak2 appears in 1 out of 3 replicates in all conditions. If n = 2, then peak2 is not a consensus peak. 
 
-* For example, peak1 appears in 2 out of 3 replicates in condition1. If n = 2, then peak1 is considered a consensus peak, even if it does not appear in other conditions. 
-* For example, peak2 appears in 1 out of 3 replicates in all conditions. If n = 2, then peak2 is not a consensus peak. 
+* Raw counts table of peaks (rows = intervals, cols = samples) `counts/counts_table.txt`
 
-Bigwig files are made with CPM normalization to compare between samples without sequencing depth bias.
+* Bigwig files using CPM normalization `data/bigwig`
 
-DESeq2 and DiffBind will test for differential open chromatin regions using every unique combinations of conditions. No need to specify your contrasts anymore, we took care of that! DESeq2 outputs contain:
+* Differentially open chromatin regions for all unique combinations of conditions. Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
 
-* PCA plot of all samples `data/deseq2/sample_PCA.png`
+    * PCA plot of all samples `data/deseq2/sample_PCA.png`
+    * DESeq2-normalized and ln(DESeq2-normalized) counts `deseq2/norm_counts.txt`, `deseq2/log_norm_counts.txt`
+    * Significant peaks split by up and down-regulation `deseq2/{contrast}/{contrast}-[up_sig|down_sig].bed`
+    * Heatmap of top 50 most differential regions `deseq2/{contrast}/{contrast}-heatmap.pdf` 
 
-* DESeq2-normalized and ln(DESeq2-normalized) counts `deseq2/norm_counts.txt`, `deseq2/log_norm_counts.txt`
-* Significant peaks split by up and down-regulation `deseq2/{contrast}/{contrast}-[up_sig|down_sig].bed`
-* Heatmap of top 50 most differential regions `deseq2/{contrast}/{contrast}-heatmap.pdf` 
+* HOMER analysis of up and down differential peaks per contrast `data/homer/{contrast}-{up|down}`
 
-DESeq2 normalizes data by the reads in peaks and assumes that most features (intervals in this case) do not change. DiffBind normalizes data by sequencing depth. We find that DESeq2 works well for finding differential peaks, while DiffBind works better to identify global changes in open chromatin regions. While the biological patterns will differ based on experiment, we want to give both options for the user to explore the nuance in their results..
-
-HOMER motif analysis of up and down differential peaks will only be run if there is > 10 peaks. This rule will submit each HOMER run to SLURM, so make sure you are using a SLURM-based HPC. It's also easy to configure it to something else if needed. It currently only supports the output of DESeq2. 
+    * HOMER will only run if there is >= 10 differential up/down peaks
 
 ## Methods
 
 ![](rulegraph.svg).
+
+
+
