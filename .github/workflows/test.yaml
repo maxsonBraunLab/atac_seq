@@ -13,14 +13,25 @@ jobs:
       run:
         shell: bash -l {0} # default to bash shell
     steps:
+      - name: 0 - Cache files
+        uses: actions/checkout@v2
+        with:
+          path: |
+            .test/snakemake/conda # cache snakemake conda envs
+            .test/testdata # cache bwa index
+          key: ${{ runner.os }}-atac-seq-cache-${{ hashFiles('envs/*.yaml') }}-${{ hashFiles('.test/testdata/Homo_sapiens.GRCh38.dna_rm.chromosome.1.fa.gz') }}
+          restore-keys: |
+            ${{ runner.os }}-atac-seq-cache-
+            atac-seq-cache-
+
       - name: 1 - Check out atac_seq
         uses: actions/checkout@v2
 
       - name: 2 - Install Conda and SnakeMake
         uses: conda-incubator/setup-miniconda@v2
         with:
-            activate-environment: snakemake
-            environment-file: .test/snakemake.5.32.yaml
+          activate-environment: snakemake
+          environment-file: .test/snakemake.5.32.yaml
 
       - name: 3 - Activate Conda Environment
         run: |
@@ -43,6 +54,7 @@ jobs:
           snakemake -j 2 --use-conda --conda-frontend mamba --conda-create-envs-only --directory .test
 
       - name: 5  - BWA Index
+        with:
         run: |
           cd .test
           source activate .snakemake/conda/d2a3bb3d
@@ -50,4 +62,6 @@ jobs:
           cd ..
 
       - name: 6 - Run the Snake
-        run: snakemake -j 2 --use-conda --directory .test
+        run: |
+          snakemake -j 20 --use-conda --directory .test --restart-times 1
+          tree .test

@@ -17,19 +17,24 @@ if [ -d "data/homer" ]; then
 fi
 
 # check if input files exists.
-if [ -f $i ];
-then
+if [ -f $i ]; then
 	echo "contrast combinations exists"
 else
 	echo -e "$i does not exist. Exiting program."
 	exit
 fi
 
-if [ -f $g ];
-then
+if [ -f $g ]; then
 	echo "genome file exists"
 else
 	echo -e "$g does not exist. Exiting program."
+	exit
+fi
+
+if [ $s == "1" ] || [ $s == "0" ] ; then
+	true
+else
+	echo "ERROR: -s option should be either 0 or 1 for SLURM integration."
 	exit
 fi
 
@@ -84,7 +89,8 @@ do
 			job_out="jobs/out/homer-$contrast.out"
 			job_err="jobs/error/homer-$contrast.err"
 			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
-		else
+		fi
+		if [ $s == 0 ]; then
 			findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1 &
 		fi
 
@@ -99,13 +105,12 @@ do
 			job_out="jobs/out/homer-$contrast.out"
 			job_err="jobs/error/homer-$contrast.err"
 			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
-		else
+		fi
+		if [ $s == 0 ]; then
 			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $up_log 2>&1 &
 		fi
 	fi
 
-	wait # for serial jobs
-
 done < $i
 
-wait # for parallel jobs
+wait
