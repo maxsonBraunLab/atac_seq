@@ -25,16 +25,29 @@ def defect_mode(wildcards, attempt):
 	elif attempt > 1:
 		return "-D"
 
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 
 all_samples = glob.glob("data/raw/*.fastq.gz")
 all_reads = [os.path.basename(i).split(".")[0] for i in all_samples]
+all_conditions = set([ os.path.basename(i).split("_")[0] for i in all_samples ])
 
-localrules: fraglength_plot, FRiP_plot, counts_table, multiqc, homer
+def get_tracks_by_condition(wildcards):
+	samples_by_condition = [ i for i in SAMPLES if wildcards.condition in i ]
+	mergebw_input = [ "data/bigwig/{}.bw".format(i) for i in samples_by_condition ]
+	return(mergebw_input)
+
+if config["ASSEMBLY"] == "hg38":
+	GSIZE = 'hs'
+elif config["ASSEMBLY"] == "mm10":
+	GSIZE = 'mm'
+else:
+	sys.exit("ERROR: Only hg38 and mm10 are supported. Your assembly: " + config["ASSEMBLY"])
+
+localrules: fraglength_plot, FRiP_plot, counts_table, multiqc
 
 rule all:
 	input:
-		# quality control
+		# quality control -------------------------------------------------------------------------
 		expand("data/fastp/{sample}_{read}.fastq.gz", sample = SAMPLES, read = ["R1", "R2"]),
 		expand("data/fastqc/{reads}_fastqc.html", reads = all_reads),
 		expand("data/fastq_screen/{sample}_{read}_screen.txt", sample = SAMPLES, read = ["R1", "R2"]),
@@ -43,14 +56,15 @@ rule all:
 		"data/multiqc/multiqc_report.html",
 		"data/fraglen.html",
 		"data/frip.html",
-		# read alignment
+		# read alignment --------------------------------------------------------------------------
 		expand("data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam", sample = SAMPLES),
 		expand("data/bigwig/{sample}.bw", sample = SAMPLES),
-		# peak calling
+		expand("data/mergebw/{conditions}.bw", conditions = all_conditions),
+		# peak calling ----------------------------------------------------------------------------
 		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES),
-		"data/macs2/consensus_peaks.bed",
+		"data/counts/consensus_peaks.bed",
 		"data/counts/counts_table.txt",
-		# differential
+		# differential ----------------------------------------------------------------------------
 		"data/deseq2",
 		"data/diffbind",
 		"data/homer"
@@ -165,28 +179,28 @@ rule banlist:
 	shell:
 		"bedtools intersect -v -ubam -abam {input.bam} -b {input.banlist} | samtools sort -@ {threads} > {output[0]}; samtools index {output[0]}"
 
-rule windows:
-	input:
-		config["CHROM_SIZES"]
-	output:
-		"data/bigwig/windows.bed.gz"
-	conda:
-		"envs/bedtools.yaml"
-	shell:
-		"bedtools makewindows -g {input} -w 10 | gzip > {output}"
-
 rule bigwig:
 	input:
 		bam = rules.banlist.output[0],
 		bai = rules.banlist.output[1],
-		windows = rules.windows.output,
-		chrom_sizes = config["CHROM_SIZES"]
 	output:
 		"data/bigwig/{sample}.bw"
 	conda:
-		"envs/bedtools.yaml"
+		"envs/deeptools.yaml"
+	threads: 8
 	shell:
-		"bash scripts/bigwig.sh -i {input.bam} -o {output} -c {input.chrom_sizes} -w {input.windows}"
+		"bamCoverage -b {input[0]} -o {output} --binSize 10 --smoothLength 50 --normalizeUsing CPM -p {threads} "
+
+rule mergebw:
+	input:
+		get_tracks_by_condition
+	output:
+		"data/mergebw/{condition}.bw"
+	conda:
+		"envs/mergebw.yaml"
+	threads: 8
+	shell:
+		"bash scripts/mergebw.sh -c {config[CHROM_SIZES]} -o {output} {input}"
 
 rule fraglength:
 	input:
@@ -222,7 +236,7 @@ rule fraglength_plot:
 # more like fraction of reads in consensus peaks
 rule FRiP:
 	input:
-		consensus = "data/macs2/consensus_peaks.bed",
+		consensus = "data/counts/consensus_peaks.bed",
 		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam"
 	output:
 		"data/stats/{sample}.frip.txt"
@@ -300,28 +314,28 @@ rule macs2:
 	conda:
 		"envs/macs2.yaml"
 	params:
-		genome_size = config["GSIZE"]
+		GS = GSIZE
 	log:
 		"data/logs/macs2_{sample}.log"
 	shell:
 		"macs2 callpeak -t {input.bam} -n {wildcards.sample} "
-		"--format BAMPE --gsize {config[GSIZE]} --tempdir data/macs2 "
+		"--format BAMPE --gsize {params.GS} --tempdir data/macs2 "
 		"--outdir data/macs2 --broad > {log} 2>&1"
 
 rule consensus:
 	input:
 		expand("data/macs2/{sample}_peaks.broadPeak", sample = SAMPLES)
 	output:
-		"data/macs2/consensus_peaks.bed"
+		"data/counts/consensus_peaks.bed"
 	conda:
 		"envs/bedtools.yaml"
 	shell:
-		"bash scripts/consensus_peaks.sh {config[N_INTERSECTS]} {input} > {output}"
+		"bash scripts/consensus_peaks.sh {config[N_INTERSECTS]} {input}"
 
 rule counts:
 	input:
 		sample = "data/banlist/{sample}.banlist.filtered.rmdup.sorted.bam",
-		consensus = "data/macs2/consensus_peaks.bed"
+		consensus = "data/counts/consensus_peaks.bed"
 	output:
 		"data/multicov/{sample}.txt"
 	conda:
@@ -348,7 +362,7 @@ rule counts_table:
 
 rule deseq2:
 	input:
-		catalog = "data/counts/counts_table.txt",
+		counts = "data/counts/counts_table.txt",
 		metadata = config["DESEQ2_CONFIG"]
 	params:
 		padj_cutoff = config["padj_cutoff"]
@@ -371,7 +385,7 @@ rule deseq2:
 
 rule diffbind:
 	input:
-		consensus_peaks = "data/macs2/consensus_peaks.bed",
+		consensus_peaks = "data/counts/consensus_peaks.bed",
 		metadata = config["DIFFBIND_CONFIG"]
 	params:
 		padj_cutoff = config["padj_cutoff"]
