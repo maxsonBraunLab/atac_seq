@@ -65,7 +65,7 @@ This is sufficient for small jobs or running small parts of the pipeline, but no
 To run the pipeline using batch mode use the following command:
 
 ```bash
-snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile slurm --restart-times 1
+snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile slurm --restart-times 2
 
 ```
 
