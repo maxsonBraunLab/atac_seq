@@ -57,7 +57,7 @@ mkdir testdata
 wget http://ftp.ensembl.org/pub/release-104/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
 gunzip Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
 mv Homo_sapiens.GRCh38.dna.chromosome.1.fa testdata
-bwa index -p testdata/hg38_chr1 Homo_sapiens.GRCh38.dna.chromosome.1.fa
+bwa index -p testdata/hg38_chr1 Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz
 
 ```
 
@@ -67,27 +67,23 @@ Put genomes and banlist to `testdata`
 
 ```yaml
 # pipeline config ---------------------------------------------------------------------------------
-
-# please adjust content of these files, though their paths should be constants.
-FASTQ_SCREEN_CONFIG: "data/config/fastq_screen_config.tsv"
-MULTIQC_CONFIG: "data/config/multiqc_config.yaml"
-DESEQ2_CONFIG: "data/config/deseq2_config.tsv"
+FASTQ_SCREEN_CONFIG: config/fastq_screen_config.tsv
+MULTIQC_CONFIG: config/multiqc_config.yaml
+DESEQ2_CONFIG: config/deseq2_config.tsv
+DIFFBIND_CONFIG: config/diffbind_config.csv
+CHROM_SIZES: config/hg38.chrom.sizes
 
 # read alignment + preprocessing ------------------------------------------------------------------
-
-GENOME: "testdata/Homo_sapiens.GRCh38.dna.chromosome.1.fa.gz"
-ASSEMBLY: "hg38" # [hg38, mm10]
+GENOME: testdata/Homo_sapiens.GRCh38.dna_rm.chromosome.1.fa.gz
+ASSEMBLY: hg38
 
 # Forbidden regions of the genome for read alignment and analysis
-BANLIST: "testdata/hg38.blacklist.v2.bed"
+BANLIST: config/hg38.blacklist.v2.bed
 
 # peak calling ------------------------------------------------------------------------------------
-
-# number of times a peak needs to appear across samples in one condition. helps build consensus peak.
+# number of times a peak needs to appear across biological replicates in one condition
+# to qualify to become a consensus peak. Consensus peak is the union of <N_INTERSECTS> peaks.
 N_INTERSECTS: 2
-
-# size of the genome for macs2 peak calling
-GSIZE: "2.7e9"
 
 # differential analysis ---------------------------------------------------------------------------
 # filter for results with pval less than <padj_cutoff>

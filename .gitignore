@@ -2,4 +2,9 @@
 .test/.snakemake
 .test/data/raw/*norun
 
+# main folder
 .snakemake
+data
+jobs
+.RData
+.nfs*
