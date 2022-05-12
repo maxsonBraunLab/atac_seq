@@ -17,38 +17,46 @@ if (snakemake@threads > 1) {
 }
 
 # import snakemake variables --------------------------------------------------
-catalog <- snakemake@input[['catalog']]
+counts <- snakemake@input[['counts']]
 md <- snakemake@input[['metadata']]
 
-print(paste("Peaks catalog: ", catalog))
+print(paste("Peaks counts: ", counts))
 print(paste("Metadata file: ", md))
 
 # import data ---------------------------------------------------------
-catalog <- read.table(catalog, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
+counts <- read.table(counts, sep = "\t", header = T, stringsAsFactors = F, check.names = F)
 md <- read.table(md, sep = "\t", header = T, stringsAsFactors = F)
-consensus_intervals <- catalog[,1:4]
+consensus_intervals <- counts[,1:4]
 
-print(head(catalog))
-print(head(md))
-
-counts <- catalog[,md$SampleID]
-rownames(counts) <- catalog$name
+counts <- counts[,md$SampleID]
+rownames(counts) <- consensus_intervals$name
 rownames(md) <- md$SampleID
+
+print(head(counts))
+print(head(md))
 
 # deseq2 ----------------------------------------------------------------------
 dds <- DESeqDataSetFromMatrix(countData = as.matrix(counts), colData = md, design = ~Condition)
 dds <- DESeq(dds, parallel = parallel)
 res <- results(dds)
 
-# export normalized data
 NormCounts <-counts(dds, normalized=TRUE)
 NormCounts <- 0.00001+(NormCounts) #this makes it so there are no 0 values#
-LogNormCounts <- log2(NormCounts)
-LogNormCounts <- as.data.frame(LogNormCounts)
-LogNormCounts$ID <- rownames(LogNormCounts)
 
-write.csv(NormCounts, snakemake@output[['norm_counts']], quote = F)
-write.csv(LogNormCounts, snakemake@output[['log_norm_counts']], quote = F)
+# include bed interval labels before exporting
+NormCountsOut <- NormCounts %>%
+	as.data.frame() %>%
+	rownames_to_column("name") %>%
+	merge(x = ., y = consensus_intervals, by = "name") %>%
+	select(chr, start, end, name, everything())
+LogNormCounts <- log10(NormCounts) %>%
+	as.data.frame() %>%
+	rownames_to_column("name") %>%
+	merge(x = ., y = consensus_intervals, by = "name") %>%
+	select(chr, start, end, name, everything())
+
+write.table(NormCountsOut, snakemake@output[['norm_counts']], quote = F, row.names = FALSE, col.names = TRUE, sep = "\t")
+write.table(LogNormCounts, snakemake@output[['log_norm_counts']], quote = F, row.names = FALSE, col.names = TRUE, sep = "\t")
 print("Exported normalized counts tables")
 
 # clustering - PCA
@@ -57,9 +65,19 @@ pca <- plotPCA(vsd, intgroup = "Condition") + geom_label_repel(aes(label=name))
 ggsave(snakemake@output[['pca']], pca, width = 16, height = 9, dpi = 300, units = "in")
 
 # define all contrasts --------------------------------------------------------
-contrast_combinations <- noquote(t(combn(unique(md$Condition), 2)))
-colnames(contrast_combinations) <- c("c1", "c2")
-print("Combinations of contrasts to assess")
+
+# give users the option to define contrast combinations if provided config/contrast_combinations.txt
+if (!file.exists("config/contrast_combinations.txt")) {
+	print("config/contrast_combinations.txt not detected. Generating contrast combinations...")
+	contrast_combinations <- noquote(t(combn(unique(md$Condition), 2)))
+	colnames(contrast_combinations) <- c("c1", "c2")
+} else {
+	print("config/contrast_combinations.txt detected. Running the following contrast combinations...")
+	contrast_combinations <- read.table("config/contrast_combinations.txt", sep = "\t", col.names  = c("c1", "c2"), header = FALSE, stringsAsFactors = FALSE)
+	stopifnot(ncol(contrast_combinations) == 2)
+}
+
+print("Contrast combinations")
 print(contrast_combinations)
 write.table(contrast_combinations, snakemake@output[["contrast_combinations"]], sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
@@ -92,8 +110,8 @@ for (i in 1:nrow(contrast_combinations)) {
 
 	# extract contrasts from DESeq object, identify up / down results and intervals.
 	temp_res <- results(dds, contrast = c("Condition", c1, c2), cooksCutoff = FALSE)
-	temp_res_df <- temp_res %>% 
-			as.data.frame() %>% 
+	temp_res_df <- temp_res %>%
+			as.data.frame() %>%
 			rownames_to_column("name") %>% 
 			arrange(padj) # contains all peaks and DE info.
 
@@ -101,7 +119,7 @@ for (i in 1:nrow(contrast_combinations)) {
 	upregulated_sig <- temp_res_df %>% filter(log2FoldChange > 0 & padj <= snakemake@params[['padj_cutoff']])
 	downregulated_sig <- temp_res_df %>% filter(log2FoldChange < 0 & padj <= snakemake@params[['padj_cutoff']])
 	
-	upregulated_intervals <- upregulated_sig %>% 
+	upregulated_intervals <- upregulated_sig %>%
 		inner_join(x = ., y = consensus_intervals, by = "name") %>% 
 		select(chr, start, end, name)
 

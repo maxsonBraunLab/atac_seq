@@ -11,10 +11,12 @@ fi
 
 all_conditions=$(echo $all_inputs | tr ' ' '\n' | cut -d/ -f3 | cut -d_ -f1 | sort | uniq)
 
+# consensus peak = the widest peak that appear in at least n replicates in at least one condition
+
 for condition in $all_conditions; do
 
 	# file I/O
-	tmp_output="data/macs2/$condition.tmp.bed"
+	tmp_output="data/counts/$condition.bed" # export peaks per conds
 
 	# list all replicates in one condition
 	all_replicates=$(find data/macs2/ -name "*$condition*.broadPeak" | sort | tr '\n' ' ')
@@ -27,6 +29,5 @@ for condition in $all_conditions; do
 done
 
 # merge intervals for all tmp files and export as consensus peak.
-all_temp_files=$(find data/macs2 -name "*.tmp.bed" | sort | tr '\n' ' ')
-cat $all_temp_files | sort -k1,1 -k2,2n | bedtools merge
-rm $all_temp_files
+all_temp_files=$(find data/counts -name "*.bed" | grep -v "consensus" | sort | tr '\n' ' ')
+cat $all_temp_files | sort -k1,1 -k2,2n | bedtools merge > data/counts/consensus_peaks.bed
