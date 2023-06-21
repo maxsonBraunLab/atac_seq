@@ -14,9 +14,9 @@ Process and analyze your PE ATAC-Seq datasets
 git clone git@github.com:maxsonBraunLab/atac_seq2.git
 
 # cd into atac_seq-2.0 and make new dir for your FASTQ files
-mkdir -p samples/raw
+mkdir -p data/raw
 
-# cd into 'samples/raw' and symlink your FASTQ files
+# cd into 'data/raw' and symlink your FASTQ files
 ln -s /absolute/path/to/files/condition1_R1.fastq.gz .
 ln -s /absolute/path/to/files/condition1_R2.fastq.gz .
 
