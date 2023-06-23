@@ -1,11 +1,12 @@
 #!/usr/bin/bash
 
-while getopts "i:g:s:" op
+while getopts "i:g:s:c:" op
 do
 	case "$op" in
 		i)  i="$OPTARG";;
 		g)  g="$OPTARG";;
 		s)  s="$OPTARG";;
+		c)  num_cpus="$OPTARG";;
 		\?) exit 1;;
 	esac
 done
@@ -37,6 +38,15 @@ else
 	echo "ERROR: -s option should be either 0 or 1 for SLURM integration."
 	exit
 fi
+
+# if command line input for num_cpus is empty or not a number, then set num_cpus manually
+# syntax reference: https://unix.stackexchange.com/questions/340440/bash-test-what-does-do
+if [ -z "$num_cpus" ] || [[ ! $num_cpus =~ ^[0-9]+$ ]]
+then
+	num_cpus=6
+fi
+echo "Number of cpus to use: $num_cpus"
+
 
 log_file_exists() {
 
@@ -86,12 +96,12 @@ do
 
 		if [ $s == 1 ]; then
 			echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
-			job_out="jobs/out/homer-$contrast.out"
-			job_err="jobs/error/homer-$contrast.err"
-			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1" &
+			job_out="jobs/homer/homer-$contrast.out"
+			job_err="jobs/homer/homer-$contrast.err"
+			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
-			findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 > $up_log 2>&1 &
+			findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1 &
 		fi
 
 	fi
@@ -102,12 +112,12 @@ do
 
 		if [ $s == 1 ]; then
 			echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
-			job_out="jobs/out/homer-$contrast.out"
-			job_err="jobs/error/homer-$contrast.err"
-			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $dn_log 2>&1" &
+			job_out="jobs/homer/homer-$contrast.out"
+			job_err="jobs/homer/homer-$contrast.err"
+			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
-			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 > $up_log 2>&1 &
+			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $up_log 2>&1 &
 		fi
 	fi
 
