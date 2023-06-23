@@ -27,6 +27,15 @@ for condition in $all_conditions; do
 done
 
 # merge intervals for all tmp files and export as consensus peak.
+output_bed_folder="data/counts"
+if [ ! -d "$output_bed_folder" ]
+then
+	mkdir -p $output_bed_folder
+fi
+output_bed_file="${output_bed_folder}/consensus_peaks.bed"
+
 all_temp_files=$(find data/macs2 -name "*.tmp.bed" | sort | tr '\n' ' ')
-cat $all_temp_files | sort -k1,1 -k2,2n | bedtools merge
+cat $all_temp_files | sort -k1,1 -k2,2n | bedtools merge > $output_bed_file
 rm $all_temp_files
+
+exit

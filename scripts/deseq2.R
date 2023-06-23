@@ -17,7 +17,7 @@ if (snakemake@threads > 1) {
 }
 
 # import snakemake variables --------------------------------------------------
-catalog <- snakemake@input[['catalog']]
+catalog <- snakemake@input[['counts']]
 md <- snakemake@input[['metadata']]
 
 print(paste("Peaks catalog: ", catalog))
