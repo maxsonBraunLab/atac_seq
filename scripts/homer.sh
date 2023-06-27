@@ -71,8 +71,8 @@ do
 	# define up and downregulated input intervals and log files
 	up_peaks=$(echo "data/deseq2/$contrast/$contrast-up_sig.bed")
 	dn_peaks=$(echo "data/deseq2/$contrast/$contrast-down_sig.bed")
-	up_log=$(echo "data/logs/homer-$contrast.log")
-	dn_log=$(echo "data/logs/homer-$contrast.log")
+	up_log=$(echo "data/logs/homer-$contrast-up.log")
+	dn_log=$(echo "data/logs/homer-$contrast-down.log")
 
 	# check and make empty log files
 	log_file_exists "$up_log"
@@ -96,8 +96,8 @@ do
 
 		if [ $s == 1 ]; then
 			echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
-			job_out="jobs/homer/homer-$contrast.out"
-			job_err="jobs/homer/homer-$contrast.err"
+			job_out="jobs/homer/homer-$contrast-up_%j.out"
+			job_err="jobs/homer/homer-$contrast-up_%j.err"
 			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
@@ -112,8 +112,8 @@ do
 
 		if [ $s == 1 ]; then
 			echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
-			job_out="jobs/homer/homer-$contrast.out"
-			job_err="jobs/homer/homer-$contrast.err"
+			job_out="jobs/homer/homer-$contrast-down_%j.out"
+			job_err="jobs/homer/homer-$contrast-down_%j.err"
 			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
