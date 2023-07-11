@@ -6,7 +6,18 @@ DIFFBIND_CONFIG: config/diffbind_config.csv
 CHROM_SIZES: config/mm10.chrom.sizes # config/hg38.chrom.sizes
 
 # read alignment + preprocessing ------------------------------------------------------------------
-GENOME: /home/groups/MaxsonLab/indices/mm10/bowtie2/mm10.fa # /home/groups/MaxsonLab/indices/GRch38/bowtie2/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta
+GENOME: /home/groups/MaxsonLab/indices/homer_preparsed/mm10.fa
+#-----If running Homer (pipeline default), use one of the following homer_preparsed FASTA symlinks:
+# /home/groups/MaxsonLab/indices/homer_preparsed/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta
+# /home/groups/MaxsonLab/indices/homer_preparsed/mm10.fa
+#-----If not running Homer, use one of the following FASTA files:
+# /home/groups/MaxsonLab/indices/GRch38/bowtie2/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta
+# /home/groups/MaxsonLab/indices/mm10/bowtie2/mm10.fa
+
+BWA_INDEX: /home/groups/MaxsonLab/indices/mm10/bwa/mm10_indices_7-2023/mm10.fa
+# /home/groups/MaxsonLab/indices/mm10/bwa/mm10_indices_7-2023/mm10.fa
+# /home/groups/MaxsonLab/indices/GRch38/bowtie2/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta
+
 ASSEMBLY: mm10 # hg38
 
 # Forbidden regions of the genome for read alignment and analysis

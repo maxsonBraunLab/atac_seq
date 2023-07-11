@@ -121,13 +121,15 @@ rule bwa:
 		r2 = rules.fastp.output.r2
 	output:
 		temp("data/bwa/{sample}.sorted.bam")
+	params:
+		bwa_index = config["BWA_INDEX"]
 	conda:
 		"envs/bwa.yaml"
 	log:
 		"data/logs/bwa_{sample}.log"
 	threads: 8
 	shell:
-		"bwa mem -t {threads} {config[GENOME]} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} > {output}"
+		"bwa mem -t {threads} {params.bwa_index} {input.r1} {input.r2} 2>{log} | samtools sort -@ {threads} > {output}"
 
 rule filter:
 	input:
