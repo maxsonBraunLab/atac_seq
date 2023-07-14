@@ -11,7 +11,7 @@ Process and analyze your PE ATAC-Seq datasets
 
 ```bash
 # clone this repo to a new working directory
-git clone git@github.com:maxsonBraunLab/atac_seq2.git
+git clone git@github.com:maxsonBraunLab/atac_seq.git
 
 # cd into atac_seq-2.0 and make new dir for your FASTQ files
 mkdir -p data/raw
@@ -44,9 +44,11 @@ Make sure to also install plotly in the snakemake environment with `conda instal
 
 ## 3. Prepare your pipeline configuration
 
-Edit the `config.yaml` file to specify which organism to use and other pipeline parameters.
+Edit the `config/config.yaml` file to specify which organism to use and other pipeline parameters.
 
-Edit the `data/config/deseq2_config.tsv` file to specify which replicates belong with which condition in DESeq2.
+Edit the `config/deseq2_config.tsv` file to specify which replicates belong with which condition in DESeq2. Each column must be separated by a tab.
+
+Edit the `config/diffbind_config.csv` file to specify sample names, sample conditions, and BAM file paths to use for Diffbind. An example template is included in the file.
 
 ## 4. Run the pipeline
 
@@ -90,7 +92,7 @@ This will submit up to 64 jobs to exacloud servers and is appropriate for runnin
 
 All of the following are in the `data` directory.
 
-* MultiQC report `data/multiqc_data/multiqc_report.html` that summarizes the following results:
+* MultiQC report `data/multiqc/multiqc_report.html` that summarizes the following results:
     * sequencing quality from fastqc
     * sequencing quality and read trimming from fastp
     * alignment quality from bowtie2
@@ -104,16 +106,16 @@ All of the following are in the `data` directory.
     * For example, peak1 appears in 2 out of 3 replicates in condition1. If n = 2, then peak1 is considered a consensus peak, even if it does not appear in other conditions. 
     * For example, peak2 appears in 1 out of 3 replicates in all conditions. If n = 2, then peak2 is not a consensus peak. 
 
-* Raw counts table of peaks (rows = intervals, cols = samples) `counts/counts_table.txt`
+* Raw counts table of peaks (rows = intervals, cols = samples) `data/counts/counts_table.txt`
 
 * Bigwig files using CPM normalization `data/bigwig`
 
 * Differentially open chromatin regions for all unique combinations of conditions. Instead of specifying contrasts explicitly, the pipeline will assess all unique combinations of conditions.
 
     * PCA plot of all samples `data/deseq2/sample_PCA.png`
-    * DESeq2-normalized and ln(DESeq2-normalized) counts `deseq2/norm_counts.txt`, `deseq2/log_norm_counts.txt`
-    * Significant peaks split by up and down-regulation `deseq2/{contrast}/{contrast}-[up_sig|down_sig].bed`
-    * Heatmap of top 50 most differential regions `deseq2/{contrast}/{contrast}-heatmap.pdf` 
+    * DESeq2-normalized and ln(DESeq2-normalized) counts `data/deseq2/norm_counts.txt`, `data/deseq2/log_norm_counts.txt`
+    * Significant peaks split by up and down-regulation `data/deseq2/{contrast}/{contrast}-[up_sig|down_sig].bed`
+    * Heatmap of top 50 most differential regions `data/deseq2/{contrast}/{contrast}-heatmap.pdf` 
 
 * HOMER analysis of up and down differential peaks per contrast `data/homer/{contrast}-{up|down}`
 

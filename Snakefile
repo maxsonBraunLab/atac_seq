@@ -416,7 +416,7 @@ rule homer:
 	conda:
 		"envs/homer.yaml"
 	shell:
-		"bash scripts/homer.sh -i {input} -g {params.genome} -s 0 -c 8"
+		"bash scripts/homer.sh -i {input} -g {params.genome} -s 1 -c 8"
 # this rule submits HOMER runs to SLURM if -s = 1. A run is each unique contrast
 # combinations split by up and down peaks if DE peaks >= 10.
 
