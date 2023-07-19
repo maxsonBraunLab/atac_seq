@@ -22,7 +22,7 @@ def main():
 	df = df[["sample", "condition"]].drop_duplicates()
 
 	# deseq2 output
-	df.to_csv('config/deseq2_config.tsv', sep = "\t", header = ["SampleID", "Condition"], index = False)
+	df.to_csv(deseq2_outfile, sep = "\t", header = ["SampleID", "Condition"], index = False)
 
 	# diffbind output
 	diffbind = df
@@ -31,7 +31,7 @@ def main():
 	diffbind["peaks"] = ["data/counts/consensus_peaks.bed"] * diffbind.shape[0]
 	diffbind["peakcaller"] = ["macs2"] * diffbind.shape[0]
 	diffbind["peakformat"] = ["bed"] * diffbind.shape[0]
-	diffbind.to_csv('config/diffbind_config.csv', sep = ",", header = ["SampleID", "Condition", "Replicate", "bamReads", "Peaks", "PeakCaller", "PeakFormat"], index = False)
+	diffbind.to_csv(diffbind_outfile, sep = ",", header = ["SampleID", "Condition", "Replicate", "bamReads", "Peaks", "PeakCaller", "PeakFormat"], index = False)
 
 if __name__ == "__main__": 
 	main()

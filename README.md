@@ -24,6 +24,9 @@ ln -s /absolute/path/to/files/condition1_R2.fastq.gz .
 mv condition1_R2 condition_1_R1.fastq.gz
 mv condition1_R2 condition_1_R2.fastq.gz
 
+# make scripts executable
+# run chmod from main pipeline directory (where Snakefile is)
+chmod +x src/*.py src/*.sh *.sh
 ```
 
 Double check the symlinks match the required input format: `{condition}_{replicate}_{dir}.fastq.gz`.
@@ -46,9 +49,19 @@ Make sure to also install plotly in the snakemake environment with `conda instal
 
 Edit the `config/config.yaml` file to specify which organism to use and other pipeline parameters.
 
-Edit the `config/deseq2_config.tsv` file to specify which replicates belong with which condition in DESeq2. Each column must be separated by a tab.
+Run the `scripts/make_differential_configs.py` script from the main pipeline directory (where the Snakefile is located) to generate a `config/deseq2_config.tsv` and a `config/diffbind_config.csv` file:
 
-Edit the `config/diffbind_config.csv` file to specify sample names, sample conditions, and BAM file paths to use for Diffbind. An example template is included in the file.
+```bash
+# if snakemake env is not yet activated, then activate it
+conda activate snakemake
+
+# run python script
+python scripts/make_differential_configs.py
+```
+
+The `config/deseq2_config.tsv` file specifies which replicates belong with which condition in DESeq2. Each column must be separated by a tab. The `config/diffbind_config.csv` file specifies sample names, sample conditions, and BAM file paths to use for Diffbind. 
+
+Double-check that the `deseq2_config.tsv` and `diffbind_config.csv` files are properly formatted. Corresponding example files are provided in the `config` folder.
 
 ## 4. Set up SLURM integration (for batch jobs)
 
