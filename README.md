@@ -95,19 +95,17 @@ To run the pipeline using batch mode use the following command:
 
 ```bash
 sbatch run_pipeline_conda.sh
-
 ```
 
-Additional setup instructions are provided in the wrapper script.
+Additional setup instructions are provided in the `run_pipeline_conda.sh` script. Make sure to follow these setup instructions prior to running the pipeline. 
 
 For users running the pipeline in batch mode, `run_pipeline_conda.sh` is a wrapper script that contains the following command:
 
 ```bash
 snakemake -j $num_jobs --verbose --use-conda --conda-prefix $CONDA_PREFIX_1/env --cluster-config cluster.yaml --profile slurm
-
 ```
 
-This will submit up to `$num_jobs` jobs (Default: 100. This number can be changed in the wrapper script) to Exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
+This will submit up to `$num_jobs` jobs (Default value: 100. This number can be changed in the wrapper script) to Exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
 
 
 ## Pipeline Summary
