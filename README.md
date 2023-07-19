@@ -50,9 +50,23 @@ Edit the `config/deseq2_config.tsv` file to specify which replicates belong with
 
 Edit the `config/diffbind_config.csv` file to specify sample names, sample conditions, and BAM file paths to use for Diffbind. An example template is included in the file.
 
-## 4. Run the pipeline
+## 4. Set up SLURM integration (for batch jobs)
 
-To configure SLURM integration with OHSU's cluster, copy the entire `slurm` folder into your home directory `~/.config/snakemake` and then delete the local copy.
+Do this step if are running the pipeline as a batch job and don't yet have a [SLURM profile](https://github.com/Snakemake-Profiles/slurm) set up.
+
+Download the `slurm` folder from the maxsonBraunLab [repository](https://github.com/maxsonBraunLab/slurm) and copy the entire thing to `~/.config/snakemake`. 
+
+Your file configuration for SLURM should be as follows:
+```
+~/.config/snakemake/slurm/<files>
+```
+
+Change the file permissions for the scripts in the `slurm` folder so that they are executable. To do this, run:
+```
+chmod +x ~/.config/snakemake/slurm/slurm*
+```
+
+## 5. Run the pipeline
 
 You can run the pipeline using an interactive node like this:
 
@@ -67,11 +81,21 @@ This is sufficient for small jobs or running small parts of the pipeline, but no
 To run the pipeline using batch mode use the following command:
 
 ```bash
-snakemake -j 64 --use-conda --rerun-incomplete --latency-wait 60 --cluster-config cluster.yaml --profile slurm --restart-times 2
+sbatch run_pipeline_conda.sh
 
 ```
 
-This will submit up to 64 jobs to exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
+Additional setup instructions are provided in the wrapper script.
+
+For users running the pipeline in batch mode, `run_pipeline_conda.sh` is a wrapper script that contains the following command:
+
+```bash
+snakemake -j $num_jobs --verbose --use-conda --conda-prefix $CONDA_PREFIX_1/env --cluster-config cluster.yaml --profile slurm
+
+```
+
+This will submit up to `$num_jobs` jobs (Default: 100. This number can be changed in the wrapper script) to Exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
+
 
 ## Pipeline Summary
 
