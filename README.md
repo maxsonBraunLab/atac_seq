@@ -11,7 +11,7 @@ Process and analyze your PE ATAC-Seq datasets
 
 ```bash
 # clone this repo to a new working directory
-git clone git@github.com:maxsonBraunLab/atac_seq.git
+git clone https://github.com/maxsonBraunLab/atac_seq.git
 
 # cd into atac_seq-2.0 and make new dir for your FASTQ files
 mkdir -p data/raw
