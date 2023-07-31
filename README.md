@@ -26,7 +26,7 @@ mv condition1_R2 condition_1_R2.fastq.gz
 
 # make scripts executable
 # run chmod from main pipeline directory (where Snakefile is)
-chmod +x src/*.py src/*.sh *.sh
+chmod +x scripts/*.py scripts/*.sh *.sh
 ```
 
 Double check the symlinks match the required input format: `{condition}_{replicate}_{dir}.fastq.gz`.

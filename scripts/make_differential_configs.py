@@ -8,7 +8,7 @@ import pandas as pd
 def main():
 
 	deseq2_outfile = "config/deseq2_config.tsv"
-	diffbind_outfile = "config/diffbind_config.tsv"
+	diffbind_outfile = "config/diffbind_config.csv"
 
 	samples = sorted(glob.glob("data/raw/*.fastq.gz"))
 
