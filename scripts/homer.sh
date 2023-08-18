@@ -117,7 +117,7 @@ do
 			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
-			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $up_log 2>&1 &
+			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1 &
 		fi
 	fi
 
