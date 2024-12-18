@@ -4,6 +4,7 @@
 ![ci/cd status](https://github.com/maxsonBraunLab/atac_seq/actions/workflows/test.yaml/badge.svg)
 [![snakemake minimum](https://img.shields.io/badge/snakemake->=5.32-<COLOR>.svg)](https://shields.io/)
 ![Maintainer](https://img.shields.io/badge/maintainer-gartician-blue)
+![Maintainer](https://img.shields.io/badge/maintainer-bioThai-blue)
 
 Process and analyze your PE ATAC-Seq datasets
 
@@ -105,7 +106,7 @@ For users running the pipeline in batch mode, `run_pipeline_conda.sh` is a wrapp
 snakemake -j $num_jobs --verbose --use-conda --conda-prefix $CONDA_PREFIX_1/env --cluster-config cluster.yaml --profile slurm
 ```
 
-This will submit up to `$num_jobs` jobs (Default value: 100. This number can be changed in the wrapper script) to Exacloud servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
+This will submit up to `$num_jobs` jobs (This number can be changed in the wrapper script) to ARC servers and is appropriate for running computationally-intensive programs (read aligning, peak calling, finding consensus peaks, calculating differentially open chromatin regions).
 
 
 ## Pipeline Summary
