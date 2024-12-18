@@ -82,7 +82,7 @@ rule fastp:
 		"envs/fastp.yaml"
 	log:
 		"data/logs/{sample}.fastp.json"
-	threads: 8
+	threads: 4
 	shell:
 		"fastp -i {input.r1} -I {input.r2} -o {output.r1} -O {output.r2} "
 		"--detect_adapter_for_pe --thread {threads} -j {log} -h /dev/null"
@@ -96,7 +96,7 @@ rule fastqc:
 		"envs/fastqc.yaml"
 	log:
 		"data/logs/fastqc_{read}.log"
-	threads: 4
+	threads: 1
 	shell:
 		"fastqc -t {threads} --outdir data/fastqc {input} > {log} 2>&1"
 
@@ -110,7 +110,7 @@ rule fastq_screen:
 		"envs/fastq_screen.yaml"
 	log:
 		"data/logs/fastq_screen_{read}.txt"
-	threads: 8
+	threads: 2
 	shell:
 		"fastq_screen --aligner bowtie2 --threads {threads} --outdir data/fastq_screen "
 		"--conf {input.config} --force {input.fastq} > {log} 2>&1"
@@ -177,7 +177,7 @@ rule banlist:
 		banlist = "data/stats/{sample}.banlist.txt"
 	conda:
 		"envs/bedtools.yaml"
-	threads: 4
+	threads: 2
 	shell:
 		"bedtools intersect -v -ubam -abam {input.bam} -b {input.banlist} | samtools sort -@ {threads} > {output[0]}; samtools index {output[0]}"
 
@@ -200,7 +200,7 @@ rule mergebw:
 		"data/mergebw/{condition}.bw"
 	conda:
 		"envs/mergebw.yaml"
-	threads: 8
+	threads: 2
 	shell:
 		"bash scripts/mergebw.sh -c {config[CHROM_SIZES]} -o {output} {input}"
 
@@ -378,7 +378,7 @@ rule deseq2:
 		contrast_combinations = "data/deseq2/contrast_combinations.txt"
 	conda:
 		"envs/deseq2.yaml"
-	threads: 8
+	threads: 1
 	log:
 		out = "data/logs/deseq2.log"
 	script:
@@ -395,7 +395,7 @@ rule diffbind:
 		directory("data/diffbind")
 	conda:
 		"envs/diffbind.yaml"
-	threads: 8
+	threads: 4
 	log:
 		"data/logs/diffbind.log"
 	script:
