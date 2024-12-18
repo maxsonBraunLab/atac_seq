@@ -98,7 +98,7 @@ do
 			echo "Running HOMER for $up_peaks_count up peaks in $up_peaks"
 			job_out="jobs/homer/homer-$contrast-up_%j.out"
 			job_err="jobs/homer/homer-$contrast-up_%j.err"
-			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1" &
+			sbatch --partition "batch" -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
 			findMotifsGenome.pl $up_peaks $g data/homer/$contrast-up -size 200 -p $num_cpus > $up_log 2>&1 &
@@ -114,7 +114,7 @@ do
 			echo "Running HOMER for $dn_peaks_count up peaks in $dn_peaks"
 			job_out="jobs/homer/homer-$contrast-down_%j.out"
 			job_err="jobs/homer/homer-$contrast-down_%j.err"
-			sbatch -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1" &
+			sbatch --partition "batch" -e $job_err -o $job_out --job-name 'mm_donuts' --time "03:00:00" --cpus-per-task=$num_cpus --wait --wrap="findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1" &
 		fi
 		if [ $s == 0 ]; then
 			findMotifsGenome.pl $dn_peaks $g data/homer/$contrast-down -size 200 -p $num_cpus > $dn_log 2>&1 &

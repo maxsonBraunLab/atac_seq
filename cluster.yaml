@@ -1,8 +1,7 @@
----
 __default__:
-  time: '03:00:00'
+  time: "03:00:00"
   nodes: 1
-  partition: exacloud
+  partition: "batch"
   job-name: "{rule}"
   output: "jobs/{rule}/{rule}_%j.out"
   error: "jobs/{rule}/{rule}_%j.err"
